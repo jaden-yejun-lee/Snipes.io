@@ -19,20 +19,20 @@ function Register() {
         });
     };
     return (
-        <Container component="main" maxWidth="sx">
+        <Container component="main" maxWidth="xs">
             <CssBaseline />
             <Box
                 sx={{
                     mt: 8,
-                    display: 'flex', //Maybe remove?
-                    flexDirection: 'column', //Maybe remove?
+                    display: 'flex', 
+                    flexDirection: 'column', 
                     alignItems: 'center',
                 }}
             >
                 <Typography component="h1" variant="h5">
                     Create an Account
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, textAlign: 'center' }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, textAlign: 'center' }}>
                     <TextField
                         margin="normal"
                         required
@@ -41,14 +41,6 @@ function Register() {
                         label="Username"
                         name="username"
                         autoFocus
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
                     />
                     <TextField
                         margin="normal"
