@@ -2,9 +2,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 //Some configuration
 const app = express();
+app.use(cors({ origin: "http://localhost:3000" }))
 app.use(express.json());
 
 //TEMPORARY SECRET KEY
