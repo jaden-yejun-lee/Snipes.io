@@ -22,9 +22,9 @@ Content-Type: application/json
 DELETE http://localhost:8080/users/636a24547794d1ba76000504
 
 ###
-PATCH http://localhost:8080/users/636a17f8b40caafdd06aed17
+PATCH http://localhost:8080/users/636a250bde446f9d32fc3262
 content-type: application/json
 
 {
-    "name": "MICKEl"
+    "gameID": "1"
 }

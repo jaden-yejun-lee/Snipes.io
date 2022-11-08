@@ -48,6 +48,15 @@ router.patch('/:id', getUser, async (req, res) => {
     if (req.body.password != null) {
         res.user.password = req.body.password
     }
+    if (req.body.gameID != null) {
+        res.user.gameID = req.body.gameID
+    }
+    if (req.body.gameid != null) {
+        res.user.gameid = req.body.gameid
+    }
+    if (req.body.points != null) {
+        res.user.points = req.body.points
+    }
     try {
         const updatedUser = await res.user.save()
         res.json(updatedUser)
