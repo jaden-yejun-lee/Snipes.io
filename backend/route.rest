@@ -1,0 +1,30 @@
+GET http://localhost:8080/users
+
+###
+GET http://localhost:8080/users/636a13f5c483163d7339541b
+
+###
+
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+    "name": "jaden",
+    "email": "mcko",
+    "password": "jlee",
+    "gameID": "shit fuck",
+    "gameid": "12345",
+    "points": 420
+}
+
+###
+
+DELETE http://localhost:8080/users/636a24547794d1ba76000504
+
+###
+PATCH http://localhost:8080/users/636a17f8b40caafdd06aed17
+content-type: application/json
+
+{
+    "name": "MICKEl"
+}

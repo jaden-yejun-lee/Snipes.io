@@ -1,42 +1,17 @@
-// Importing modules
-const express = require("express");
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
+require('dotenv').config()
 
-//Some configuration
-const app = express();
-app.use(express.json());
+const express = require('express')
+const app = express()
+const mongoose = require('mongoose')
 
-//TEMPORARY SECRET KEY
-tempSecretKey = "boopoop"
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true})
+const db = mongoose.connection
+db.on('error', (error) => console.error(error))
+db.once('open', () => console.log('Connected to Database'))
 
-// Handling post request
-app.post("/login", async (req, res, next) => {
-let { email, password } = req.body;
-//check if email/pass is in db
-let token;
-try {
-	//Creating jwt token
-	token = jwt.sign(
-	{ email: email },
-	tempSecretKey,
-	{ expiresIn: "1h" }
-	);
-} catch (err) {
-	console.log(err);
-	const error = new Error("Unable to create token.");
-	return next(error);
-}
-res
-	.status(200)
-	.json({
-	success: true,
-	data: {
-		email: email,
-		token: token,
-	},
-	});
-});
+app.use(express.json())
 
-//Temporary for while not connected to database yet
-app.listen(8080)
+const usersRouter = require('./routes/users')
+app.use('/users', usersRouter)
+
+app.listen(8080, () => console.log('Server Started'))
