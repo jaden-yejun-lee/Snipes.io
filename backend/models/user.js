@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    history: {
+    history: [{
         gameid: {
             type: String,
             required: true
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
             type: Number,
             required: true
         }
-    }
+    }]
 
 })
 

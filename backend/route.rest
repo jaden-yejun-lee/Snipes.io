@@ -26,5 +26,16 @@ PATCH http://localhost:8080/users/636a250bde446f9d32fc3262
 content-type: application/json
 
 {
-    "gameID": "1"
+    "gameID": "15"
+}
+
+###
+
+
+POST http://localhost:8080/users/history/636b54388f163466a6ae6814
+Content-Type: application/json
+
+{
+    "gameid": "asdfasdf",
+    "points": 16
 }
