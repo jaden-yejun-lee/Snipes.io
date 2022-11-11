@@ -15,13 +15,6 @@ function Login() {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/home";
     const { token, setToken } = useAuth();
-
-    useEffect(() => {
-        if (token) {
-            console.log('Already logged in');
-            navigate(from, { replace: true });
-        }
-    });
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -45,6 +38,7 @@ function Login() {
             }).then(data => data.json());
             const token = response?.data?.token;
             setToken(token);
+            console.log(from);
             navigate(from, { replace: true });
         }
         catch (e) {

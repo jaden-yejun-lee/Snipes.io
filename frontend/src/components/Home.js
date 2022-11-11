@@ -6,17 +6,33 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
+import { useNavigate } from 'react-router-dom';
 
 function Home() {
-    const handleCreate = (event) => {
+    const navigate = useNavigate();
+    const handleCreate = async (event) => {
         event.preventDefault();
-        console.log("clicked create game");
+        console.log('clicked create game');
+        try {
+            const response = await fetch('http://localhost:8080/createLobby', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(data => data.json());
+            const lobbyID = response?.data?.lobbyID;
+            navigate('lobby/'+lobbyID);
+        } catch(e) {
+            console.log('Create game failed: ' + e);
+        }
     };
 
     const handleJoin = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log("clicked create game with " + data.get('code'))
+        const lobbyID = data.get('code')
+        console.log('clicked join game with ' + lobbyID)
+        navigate('/lobby/'+lobbyID);
     }
 
     return (

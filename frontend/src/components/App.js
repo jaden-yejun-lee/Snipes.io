@@ -17,7 +17,7 @@ function App() {
                     <Route path='/home' element={<Home />} />
                 </Route>
                 <Route element={<RequireAuth />}>
-                    <Route path='/lobby/:lobbyID' element={<Home />} />
+                    <Route path='/lobby/:lobbyID' element={<Lobby />} />
                 </Route>
             </Routes>
         </Router>

@@ -14,7 +14,7 @@ function Register() {
         const data = new FormData(event.currentTarget);
         // TODO: write login auth function with @Ingrid
         console.log({
-            email: data.get('email'),
+            email: data.get('username'),
             password: data.get('password'),
         });
     };
