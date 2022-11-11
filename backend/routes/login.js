@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 tempSecretKey = "boopoop"
 
 // Handling post request
-router.get("/", async (req, res, next) => {
+router.post("/", async (req, res, next) => {
 	let { email, password } = req.body;
 	try {
 		const userExist = await User.exists({email: email, password: password});
