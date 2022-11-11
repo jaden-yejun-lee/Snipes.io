@@ -1,12 +1,19 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "ingrid.js",
+  "description": "Our backend Node app",
+  "main": "server.js",
   "scripts": {
     "devStart": "nodemon server.js"
   },
-  "author": "",
+  "keywords": [
+    "node.js",
+    "express",
+    "jwt",
+    "auth",
+    "mongodb"
+  ],
+  "author": "snipes",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
