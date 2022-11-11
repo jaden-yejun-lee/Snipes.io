@@ -32,13 +32,12 @@ function Login() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    username: user,
+                    email: user,
                     password: password,
                 })
             }).then(data => data.json());
             const token = response?.data?.token;
             setToken(token);
-            console.log(from);
             navigate(from, { replace: true });
         }
         catch (e) {

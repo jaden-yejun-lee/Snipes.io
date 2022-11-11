@@ -7,16 +7,43 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Link from "@mui/material/Link";
+import { useNavigate, useLocation } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
 
 function Register() {
-    const handleSubmit = (event) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/home";
+    const { token, setToken } = useAuth();
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        // TODO: write login auth function with @Ingrid
+        const user = data.get('username');
+        const password = data.get('password');
         console.log({
-            email: data.get('username'),
-            password: data.get('password'),
+            username: user,
+            password: password,
         });
+        try {
+            const response = await fetch('http://localhost:8080/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: user,
+                    email: user,
+                    password: password,
+                })
+            }).then(data => data.json());
+            const token = response?.data?.token;
+            setToken(token);
+            navigate(from, { replace: true });
+        }
+        catch (e) {
+            console.log('Signup failed: ' + e);
+        }
     };
     return (
         <Container component="main" maxWidth="xs">

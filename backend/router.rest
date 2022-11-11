@@ -1,0 +1,27 @@
+GET http://localhost:3000/sales
+
+###
+
+POST http://localhost:8080/signup
+Content-Type: application/json
+
+{
+    "name": "aa",
+    "email": "aavin@snipes.com",
+    "password": "aa"
+}
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+    "email": "gavin@snipes.com",
+    "password": "gavin"
+}
+
+
+###
+
+DELETE http://localhost:3000/sales/6369b662b3496fdd72826a81

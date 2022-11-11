@@ -1,44 +1,31 @@
-// Importing modules
-const express = require("express");
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
+require('dotenv').config() //load all the config variables from env
+
+const express = require('express')
+const app = express()
+const mongoose = require('mongoose')
 const cors = require("cors");
 
-//Some configuration
-const app = express();
 app.use(cors({ origin: "http://localhost:3000" }))
-app.use(express.json());
+mongoose.connect(process.env.DATABASE_URI, {useNewUrlParser: true})
 
-//TEMPORARY SECRET KEY
-tempSecretKey = "boopoop"
+//Checking the DB Connection 
+const db = mongoose.connection
+db.on('error', (error) => console.error(error)) //If there is an error log the error
+db.once('open', () => (console.log('Connected to Database'))) //Once you can open/connect to Database, log that there was a connection
 
-// Handling post request
-app.post("/login", async (req, res, next) => {
-let { email, password } = req.body;
-//check if email/pass is in db
-let token;
-try {
-	//Creating jwt token
-	token = jwt.sign(
-	{ email: email },
-	tempSecretKey,
-	{ expiresIn: "1h" }
-	);
-} catch (err) {
-	console.log(err);
-	const error = new Error("Unable to create token.");
-	return next(error);
-}
-res
-	.status(200)
-	.json({
-	success: true,
-	data: {
-		email: email,
-		token: token,
-	},
-	});
-});
+//Let the server accept JSON
+app.use(express.json())
 
-//Temporary for while not connected to database yet
-app.listen(8080)
+//JUST FOR TEMP PROJECT
+//Connecting the [backend]/sales route to go to /routers/sales.js
+const salesRouter = require("./routes/sales")
+app.use('/sales', salesRouter) //anything with /subscribers will go into subscribers Router
+
+const loginRouter = require("./routes/login")
+app.use('/login', loginRouter)
+
+const signupRouter = require("./routes/signup")
+app.use('/signup', signupRouter)
+
+
+app.listen(8080, () => console.log('Server Started'))
