@@ -14,8 +14,16 @@ db.once('open', () => (console.log('Connected to Database'))) //Once you can ope
 //Let the server accept JSON
 app.use(express.json())
 
+//JUST FOR TEMP PROJECT
 //Connecting the [backend]/sales route to go to /routers/sales.js
 const salesRouter = require("./routes/sales")
 app.use('/sales', salesRouter) //anything with /subscribers will go into subscribers Router
 
-app.listen(3000, () => console.log('Server Started'))
+const loginRouter = require("./routes/login")
+app.use('/login', loginRouter)
+
+const signupRouter = require("./routes/signup")
+app.use('/signup', signupRouter)
+
+
+app.listen(8080, () => console.log('Server Started'))
