@@ -6,7 +6,7 @@ const mongoose = require('mongoose')
 const cors = require("cors");
 
 app.use(cors({ origin: "http://localhost:3000" }))
-mongoose.connect(process.env.DATABASE_URI, {useNewUrlParser: true})
+mongoose.connect(process.env.DATABASE_URI, {useNewUrlParser: true, useUnifiedTopology: true})
 
 //Checking the DB Connection 
 const db = mongoose.connection
@@ -16,6 +16,8 @@ db.once('open', () => (console.log('Connected to Database'))) //Once you can ope
 //Let the server accept JSON
 app.use(express.json())
 
+//Uploading images to MongoDB
+
 //JUST FOR TEMP PROJECT
 //Connecting the [backend]/sales route to go to /routers/sales.js
 const salesRouter = require("./routes/sales")
@@ -24,8 +26,10 @@ app.use('/sales', salesRouter) //anything with /subscribers will go into subscri
 const loginRouter = require("./routes/login")
 app.use('/login', loginRouter)
 
-const signupRouter = require("./routes/signup")
+const signupRouter = require("./routes/signup");
 app.use('/signup', signupRouter)
 
+const photoRouter = require("./routes/photo")
+app.use('/upload', photoRouter)
 
 app.listen(8080, () => console.log('Server Started'))
