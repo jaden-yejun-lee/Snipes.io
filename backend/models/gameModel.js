@@ -15,6 +15,16 @@ const gameSchema = new mongoose.Schema({
             object: String
         }
     ],
+    team1: [
+        {
+            userID: String
+        }
+    ], 
+    team2: [
+        {
+            userID: String
+        }
+    ], 
     // photos: [
     //   {
     //     userEmail: String,
