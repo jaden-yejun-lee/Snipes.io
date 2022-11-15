@@ -6,8 +6,6 @@ const jwt = require('jsonwebtoken')
 //TEMPORARY SECRET KEY
 tempSecretKey = "boopoop"
 
-
-
 // Handling post request
 router.post("/", async (req, res, next) => {
 	let { name, email, password } = req.body;
@@ -23,7 +21,7 @@ router.post("/", async (req, res, next) => {
 		}
         const newUser = await user.save()
     } catch (err) {
-        return res.status(400).json({ message: err.message })
+        return res.status(500).json({ message: err.message })
     }
 	let token;
 	try {
