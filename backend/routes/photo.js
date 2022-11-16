@@ -4,8 +4,6 @@ const Photo = require('../models/photo')
 const multer = require('multer')
 const fs = require('fs')
 
-
-
 // stores photos on local device
 const Storage = multer.diskStorage({
     destination: 'uploads',
@@ -41,22 +39,33 @@ router.post('/', (req, res) => {
     }) 
 })
 
-//write a get
-//STILL NOT DONE
+//GET: Get a photo with id
 router.get('/:id', async (req, res) => {
     const post = await Photo.findById(req.params.id);
     res.json(post)
 })
 
-//DELETE: Deleting a sale with postID
+//DELETE: Deleting a photo with id
 router.delete('/:id', async (req, res) => {
     try {
         const removedPost = await Photo.deleteOne({id: req.params.id})
         res.json(removedPost)
+        console.log("successfully deleted")
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-    
+})
+
+//GET: Get all the sales
+router.get('/', async (req, res) => {
+    try {
+        const photos = await Photo.find()
+        res.json(photos)
+        console.log("Get request success")
+    } catch (err) {
+        console.log("Something went wrong!")
+        res.status(500).json({message: err.message})
+    }
 })
 
 
