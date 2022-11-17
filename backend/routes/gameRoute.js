@@ -21,8 +21,11 @@ router.post('/:gameID', async (req, res) => {
 
     const game = new Game({
         gameID: req.params.gameID,
+        status: "open",
         players: [],
-        objects: []
+        objects: [],
+        team1: [],
+        team2: []
     })
 
     try {
@@ -91,6 +94,10 @@ router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
         let username = "mike"
 
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
+        if (curr_game.status == "closed"){
+            res.send("Game is closed")
+            return
+        }
         if (req.body.newPlayer == "True"){
             // add to all players array
             curr_game.players.push({"userID": username})
