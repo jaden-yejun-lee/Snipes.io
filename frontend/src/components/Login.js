@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -7,14 +7,17 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Alert from '@mui/material/Alert';
 import useAuth from '../hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/home";
     const { token, setToken } = useAuth();
+    const [ alert, setAlert ] = useState(false);
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -35,7 +38,16 @@ function Login() {
                     email: user,
                     password: password,
                 })
-            }).then(data => data.json());
+            }).then(data => {
+                if (data.status === 401) {
+                    setAlert(true);
+                    throw new Error("Incorrect Login Information")
+                }
+                return data.json()
+            }
+            );
+            console.log(response);
+            
             const token = response?.data?.token;
             setToken(token);
             navigate(from, { replace: true });
@@ -85,6 +97,7 @@ function Login() {
                     >
                         Log In
                     </Button>
+                    {alert ? <Alert severity='error' onClose={() => setAlert(false)}>{"Incorrect Login Information"}</Alert> : <></> }
                     <Grid container>
                         <Grid item xs>
                             <Link href="register" variant="body2">
