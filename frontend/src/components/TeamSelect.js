@@ -9,15 +9,17 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import useAuth from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom'
 
 function TeamSelect(props) {
     const { token } = useAuth();
+    const navigate = useNavigate();
 
     const handleJoin = async (ID, event) => {
         event.preventDefault();
         console.log('Joining Team ' + ID);
         try {
-            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/team/' + ID, {
+            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/assignPlayer/' + ID, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -47,6 +49,22 @@ function TeamSelect(props) {
         }
     };
 
+    const handleLeave = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/assignPlayer', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
+            }).then(data => data.json());
+            navigate('/home');
+        } catch (e) {
+            console.log('Leave game failed: ' + e);
+        }
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -73,9 +91,17 @@ function TeamSelect(props) {
                     <Button
                         type="submit"
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
+                        sx={{ mt: 5, mb: 2 }}
                     >
                         All ready!
+                    </Button>
+                </Box>
+                <Box component="form" onSubmit={handleLeave} sx={{ mt: 1 }}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                    >
+                        Leave Game
                     </Button>
                 </Box>
             </Box>
@@ -89,7 +115,7 @@ function Team(props) {
             <ListItem style={{ textAlign: 'center' }}>
                 <ListItemText primary={'Team ' + props.ID + ':'} />
             </ListItem>
-            <Divider />
+            <Divider sx={{ ml: '5%', mr: '5%' }}/>
             <List>
                 {
                     props.players.map((player) =>

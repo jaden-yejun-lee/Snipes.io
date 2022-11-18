@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import TeamSelect from './TeamSelect';
 import TargetSelect from './TargetSelect';
+import Game from './Game';
 
 function Lobby() {
     const { lobbyID } = useParams();
@@ -11,6 +12,7 @@ function Lobby() {
     const [team1, setTeam1] = useState([]);
     const [team2, setTeam2] = useState([]);
     const [targets, setTargets] = useState([]);
+    const [points, setPoints] = useState([0, 0]);
 
     console.log(lobbyID);
 
@@ -29,9 +31,10 @@ function Lobby() {
             // Need: lobby DNE error code, no permission error code, success code
             // Set gameState: teamSelect, targetSelect, inProgress
             setGameState(response?.data?.gameState);
-            setTeam1(response?.data?.team1);
+            setTeam1(response?.data?.team1); // maybe combine team1 team2 into one nested array?
             setTeam2(response?.data?.team2);
             setTargets(response?.data?.targets);
+            setPoints(response?.data?.points);
         }
         catch (e) {
             console.log('Fetch lobby failed: ' + e);
@@ -57,7 +60,7 @@ function Lobby() {
 
     return (
         gameState === 'teamSelect' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
-        gameState === 'targetSelect' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : <div>Hello</div>//<GameFeed></GameFeed>
+        gameState === 'targetSelect' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : <Game points={points}></Game>
     );
 }
 
