@@ -35,6 +35,15 @@ router.post('/', (req, res) => {
             newPhoto.save()
             .then(() => res.send('successfully uploaded'))
             .catch((err) => console.log(err));
+
+            // deletes file from local so that unnecessary space is not used in holding pictures in upload folder
+            fs.unlink('./uploads/' + req.file.filename, (err) => {
+                if (err) {
+                    console.error(err)
+                    return
+                }
+            })
+          
         }
     }) 
 })
