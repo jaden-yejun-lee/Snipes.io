@@ -21,7 +21,7 @@ function Home() {
                 },
             }).then(data => data.json());
             const lobbyID = response?.data?.lobbyID;
-            navigate('lobby/'+lobbyID);
+            navigate('/lobby/'+lobbyID);
         } catch(e) {
             console.log('Create game failed: ' + e);
         }
