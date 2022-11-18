@@ -3,8 +3,11 @@ require('dotenv').config() //load all the config variables from env
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
-const bodyParser = require('body-parser')
 
+const bodyParser = require('body-parser')
+const cors = require("cors");
+
+app.use(cors({ origin: "http://localhost:3000" }))
 mongoose.connect(process.env.DATABASE_URI, {useNewUrlParser: true})
 
 //Checking the DB Connection 
@@ -16,10 +19,17 @@ db.once('open', () => (console.log('Connected to Database'))) //Once you can ope
 // app.use(express.json())
 app.use(bodyParser.json())
 
+//JUST FOR TEMP PROJECT
 //Connecting the [backend]/sales route to go to /routers/sales.js
 const salesRouter = require("./routes/sales")
 app.use('/sales', salesRouter) //anything with /subscribers will go into subscribers Router
 const gameRouter = require("./routes/gameRoute")
 app.use('/gameModel', gameRouter)
+
+const loginRouter = require("./routes/login")
+app.use('/login', loginRouter)
+
+const signupRouter = require("./routes/signup")
+app.use('/signup', signupRouter)
 
 app.listen(8080, () => console.log('Server Started'))

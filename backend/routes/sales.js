@@ -32,8 +32,10 @@ router.post('/', async (req, res) => {
 })
 
 //STILL NOT DONE
-router.get('/:id', (req, res) => {
-    res.send(req.params.id)
+router.get('/:id', async (req, res) => {
+    const post = await Sale.findById(req.params.postID);
+    res.json(post)
+
 })
 
 //DELETE: Deleting a sale with postID
