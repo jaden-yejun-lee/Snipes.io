@@ -19,22 +19,19 @@ function Lobby() {
     const getLobby = async () => {
         try {
             const response = await fetch('http://'+window.location.hostname+':8080/gameModel/'+lobbyID, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-                body: {
-                    lobbyID: lobbyID,
-                }
             }).then(data => data.json());
             // Need: lobby DNE error code, no permission error code, success code
             // Set gameState: teamSelect, targetSelect, inProgress
-            setGameState(response?.data?.gameState);
-            setTeam1(response?.data?.team1); // maybe combine team1 team2 into one nested array?
+            setGameState(response?.data?.status);
+            setTeam1(response?.data?.team1);
             setTeam2(response?.data?.team2);
-            setTargets(response?.data?.targets);
-            setPoints(response?.data?.points);
+            setTargets(response?.data?.objects);
+            //setPoints(response?.data?.points);
         }
         catch (e) {
             console.log('Fetch lobby failed: ' + e);
