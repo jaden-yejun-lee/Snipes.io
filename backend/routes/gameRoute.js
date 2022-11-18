@@ -124,9 +124,7 @@ router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
         else{
             curr_game.team2.push({"userID" : username})
         }
-
         // console.log(curr_game.team2.indexOf({"userID": username}))
-
         curr_game.save()
         res.status(201).json(curr_game)
 
