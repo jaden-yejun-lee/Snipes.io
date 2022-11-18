@@ -7,6 +7,9 @@ const Game = require('../models/gameModel')
 router.get('/:gameID', async (req, res) => {
     try {
         const game = await Game.findOne({"gameID": req.params.gameID})
+        if (!game) {
+            return res.status(400).json({message: "game does not exist"});
+        }
         res.json(game)
         console.log("Get request success")
     } catch (err) {
