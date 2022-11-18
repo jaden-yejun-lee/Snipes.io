@@ -10,13 +10,14 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import { useParams, useOutlet } from 'react-router-dom';
+import { useParams, useOutlet, Outlet } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
 function Lobby() {
     const { lobbyID } = useParams();
     const { token } = useAuth();
     const [gameState, setGameState] = useState('teamSelect');
+    const [photoIDs, setPhotoIDs] = useState(['a', 'bce']);
     const outlet = useOutlet();
 
     console.log(lobbyID);
@@ -56,10 +57,8 @@ function Lobby() {
     // Frontend will display the proper screen
 
     return (
-        <Container component="main" maxWidth="xs">
-            { outlet || (gameState === 'teamSelect' ? <TeamSelectScreen lobbyID={lobbyID}></TeamSelectScreen> : <div>Hello</div>)}
-            {/* gameState === 'objectSelect' ? <ObjectSelectScreen></ObjectSelectScreen> : <GameScreen></GameScreen> */}
-        </Container>
+        outlet === null ? (gameState === 'teamSelect' ? <TeamSelectScreen lobbyID={lobbyID}></TeamSelectScreen> : <div>Hello</div>) : <Outlet context={[photoIDs, setPhotoIDs]} />
+        // gameState === 'objectSelect' ? <ObjectSelectScreen></ObjectSelectScreen> : <GameScreen></GameScreen>
     );
 }
 

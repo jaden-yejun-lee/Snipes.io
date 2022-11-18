@@ -20,8 +20,8 @@ function App() {
                 </Route>
                 <Route element={<RequireAuth />}>
                     <Route path='/lobby/:lobbyID' element={<Lobby />}>
-                        <Route path='upload' element={<Login />} />
-                        <Route path='killFeed' element={<Register />} />
+                        <Route path='upload' element={<Upload />} />
+                        <Route path='killFeed' element={<KillFeed />} />
                     </Route>
                 </Route>
             </Routes>
