@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import ImageListItemBar from '@mui/material/ImageListItemBar';
 
 function KillFeed() {
-    const [photoIDs, setPhotoIDs] = useOutletContext();
-    const [images, setImages] = useState(['iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==', 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==']);
+    const [photoData, setPhotoData] = useOutletContext();
+    const [images, setImages] = useState([]);
 
     const getImage = async (ID) => {
         try {
-            const response = await fetch('http://'+window.location.hostname+':8080/upload/' + ID, {
+            const response = await fetch('http://' + window.location.hostname + ':8080/upload/' + ID, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -23,20 +29,49 @@ function KillFeed() {
 
     const getImages = async () => {
         const imgs = [];
-        for (let i in photoIDs) {
-            imgs.push(await getImage(photoIDs[i]));
+        for (let i in photoData) {
+            imgs.push({
+                img: await getImage(photoData[i].ID),
+                username: photoData[i].username,
+                target: photoData[i].target,
+                timestamp: photoData[i].timestamp,
+            });
         }
         setImages(imgs);
     }
 
     useEffect(() => {
-        //getImages();
-    }, [photoIDs]);
+        getImages();
+    }, [photoData]);
 
     return (
-        <div>
-            <img src={`data:image/png;base64,${images[0]}`} width='1080px' />
-        </div>
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Box
+                sx={{
+                    marginTop: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <ImageList cols={1} sx={{ width: 3 / 4 }}>
+                    {images.map((img) => (
+                        <ImageListItem key={img.timestamp} sx={{mb: 2}}>
+                            <img
+                                src={`data:image/png;base64,${img.img}`}
+                                loading="lazy"
+                                style={{ width: '100%' }}
+                            />
+                            <ImageListItemBar
+                                subtitle={img.timestamp + ': ' + img.username + ' (' + img.target + ')'}
+                                position="below"
+                            />
+                        </ImageListItem>
+                    ))}
+                </ImageList>
+            </Box>
+        </Container >
     );
 }
 

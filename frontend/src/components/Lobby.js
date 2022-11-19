@@ -17,7 +17,20 @@ function Lobby() {
     const { lobbyID } = useParams();
     const { token } = useAuth();
     const [gameState, setGameState] = useState('teamSelect');
-    const [photoIDs, setPhotoIDs] = useState(['a', 'bce']);
+    const [photoData, setPhotoData] = useState([
+        {
+            ID: '63772d763f9905f7b9f72ec7',
+            username: "test1",
+            target: "target1",
+            timestamp: "1:00",
+        }, 
+        {
+            ID: '63773057685a4a782de710cb',
+            username: "test2",
+            target: "target2",
+            timestamp: "2:00",
+        },
+    ]);
     const outlet = useOutlet();
 
     console.log(lobbyID);
@@ -57,7 +70,7 @@ function Lobby() {
     // Frontend will display the proper screen
 
     return (
-        outlet === null ? (gameState === 'teamSelect' ? <TeamSelectScreen lobbyID={lobbyID}></TeamSelectScreen> : <div>Hello</div>) : <Outlet context={[photoIDs, setPhotoIDs]} />
+        outlet === null ? (gameState === 'teamSelect' ? <TeamSelectScreen lobbyID={lobbyID}></TeamSelectScreen> : <div>Hello</div>) : <Outlet context={[photoData, setPhotoData]} />
         // gameState === 'objectSelect' ? <ObjectSelectScreen></ObjectSelectScreen> : <GameScreen></GameScreen>
     );
 }
