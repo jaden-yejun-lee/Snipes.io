@@ -7,7 +7,7 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require("cors");
 
-app.use(cors({ origin: "http://localhost:3000" }))
+app.use(cors())
 mongoose.connect(process.env.DATABASE_URI, {useNewUrlParser: true, useUnifiedTopology: true})
 
 //Checking the DB Connection 

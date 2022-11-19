@@ -24,7 +24,7 @@ function KillFeed() {
             return Buffer.from(buf.data).toString('base64');
         } catch (e) {
             console.log('Get image ' + ID + ' failed: ' + e);
-            return null
+            return null;
         }
     }
 
@@ -43,8 +43,8 @@ function KillFeed() {
 
     useEffect(() => {
         getImages();
-    }, [photoData]);
-
+    }, []);
+    
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
