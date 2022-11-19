@@ -5,6 +5,20 @@ const gameSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    status: {
+        type: Number,
+        required: true
+    },
+    // team1_pts: {
+    //     type: Number,
+    //     required: true
+    // },
+    // team1_pts: {
+    //     type: String,
+    //     required: true
+    // },
+
+
     players: [
         {
             userID: String
@@ -15,6 +29,16 @@ const gameSchema = new mongoose.Schema({
             object: String
         }
     ],
+    team1: [
+        {
+            userID: String
+        }
+    ], 
+    team2: [
+        {
+            userID: String
+        }
+    ], 
     // photos: [
     //   {
     //     userEmail: String,
