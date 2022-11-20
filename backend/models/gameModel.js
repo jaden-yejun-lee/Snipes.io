@@ -6,7 +6,7 @@ const gameSchema = new mongoose.Schema({
         required: true
     },
     status: {
-        type: Number,
+        type: String,
         required: true
     },
     // team1_pts: {
@@ -17,7 +17,6 @@ const gameSchema = new mongoose.Schema({
     //     type: String,
     //     required: true
     // },
-
 
     players: [
         {
