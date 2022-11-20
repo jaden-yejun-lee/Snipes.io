@@ -5,11 +5,13 @@ const mongoose = require('mongoose')
 const historySchema = new mongoose.Schema({
     gameID: {
         type: String,
-        required: false
+        required: false,
+        //default: "", ---> "" is a falsy value and thus is invalid 
     },
     points: {
         type: Number,
-        required: false
+        required: true,
+        default: 0,
     },
 })
 
@@ -32,11 +34,11 @@ const userSchema = new mongoose.Schema({
         require: false
         // default: null
     },
-    history: {
-        type: [historySchema],
-        required: false,
-        default: []
-    }, 
+    currentPoints: {
+        type: Number,
+        require: false
+    },
+    history: { type: mongoose.Schema.Types.ObjectId, ref: 'userHistory' }, 
     
 }, { collection: 'users',
 versionKey: false

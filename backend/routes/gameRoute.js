@@ -15,7 +15,7 @@ router.get('/:gameID', async (req, res) => {
     }
 })
 
-// Create a new empty game
+// Create a new empty 
 router.post('/:gameID', async (req, res) => {
     // GENERATE A GAMEID HERE AND REMOVE FROM URL
 
@@ -38,9 +38,14 @@ router.post('/:gameID', async (req, res) => {
 
 // add an object to the game 
 router.post('/:gameID/target', async (req, res) => {
+    let {object} = req.body;
     try {
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
-        curr_game.objects.push({"object":req.body.object})
+        //We want to add the object to a random index.
+        //1. Create any random number between min (included) and max (not included): Math.random() * (max - min) + min;
+        randomSeededIndex = Math.random() * (curr_game.objects.length - 0) + 0;
+        //2. insert at index: <array-name>.splice(<position-to-insert-items>,0,<item-1>,<item-2>,..,<item-n>)
+        curr_game.objects.splice(randomSeededIndex, 0, object)
         curr_game.save()
 
         res.status(201).json(curr_game)
@@ -52,18 +57,19 @@ router.post('/:gameID/target', async (req, res) => {
 
 // delete an object from a game
 router.delete('/:gameID/target', async (req, res) => {
+    let {object} = req.body;
     try {
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
         var deleted = false
         for (let i=0; i < curr_game.objects.length; i++){
-            if ((curr_game.objects[i].object) == req.body.object){
+            if ((curr_game.objects[i]) === object){
                 curr_game.objects.splice(i, 1)
                 deleted = true
                 break
             }
         }
         if (!deleted){
-            res.send("Object to be deleted not found")
+            res.send("Object to be deleted not found.")
         }
         else{
             curr_game.save()
