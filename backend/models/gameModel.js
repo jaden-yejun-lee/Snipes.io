@@ -5,8 +5,8 @@ const gameSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    status: {
-        type: Number,
+    state: {
+        type: String,
         required: true
     },
     // team1_pts: {
@@ -14,7 +14,7 @@ const gameSchema = new mongoose.Schema({
     //     required: true
     // },
     // team1_pts: {
-    //     type: String,
+    //     type: Number,
     //     required: true
     // },
 
