@@ -1,11 +1,15 @@
 const express = require('express')
 const router = express.Router();
 const Game = require('../models/gameModel')
+const jwt = require('jsonwebtoken')
 
 
 // get the attributes of a game
 router.get('/:gameID', async (req, res) => {
     try {
+        var token = req.headers.authorization
+        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+
         const game = await Game.findOne({"gameID": req.params.gameID})
 
         if (game == null){
@@ -13,8 +17,21 @@ router.get('/:gameID', async (req, res) => {
             return
         }
 
+        let userFound = false
+
+        for (let i=0; i < game.players.length; i++){
+            if (game.players[i].userID == username){
+                userFound = true
+                break;
+            }
+        }
+
+        if (!userFound && game.state != "open"){
+            res.status(403).send("Access denied")
+            return
+        }
+
         res.json(game)
-        // console.log("Get request success")
     } catch (err) {
         console.log("Something went wrong!")
         res.status(500).json({message: err.message})
@@ -137,7 +154,7 @@ router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
     try {
         // change to decryt jwt token
         // console.log(typeof req.headers)
-        let username = "steve"
+        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
 
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
         
@@ -198,7 +215,7 @@ router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
 router.delete('/:gameID/assignPlayer', async (req, res) => {
     try {
         // change to decryt jwt token
-        let username = "mike"
+        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
         if (curr_game == null){
             res.status(404).json({message: "No Game ID Found"})
