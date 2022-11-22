@@ -27,11 +27,11 @@ function Lobby() {
             }).then(data => data.json());
             // Need: lobby DNE error code, no permission error code, success code
             // Set gameState: teamSelect, targetSelect, inProgress
-            setGameState(response?.data?.status);
-            setTeam1(response?.data?.team1);
-            setTeam2(response?.data?.team2);
-            setTargets(response?.data?.objects);
-            //setPoints(response?.data?.points);
+            setGameState(response?.status);
+            setTeam1(response?.team1);
+            setTeam2(response?.team2);
+            setTargets(response?.objects);
+            //setPoints(response?.points);
         }
         catch (e) {
             console.log('Fetch lobby failed: ' + e);
