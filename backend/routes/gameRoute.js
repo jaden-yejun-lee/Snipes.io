@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const Game = require('../models/gameModel')
-
+const User = require('../models/userModel')
+const Hist = require('../models/historyModel')
 
 // get the attributes of a game
 router.get('/:gameID', async (req, res) => {
@@ -40,7 +41,13 @@ router.post('/:gameID', async (req, res) => {
 router.post('/:gameID/target', async (req, res) => {
     let {object} = req.body;
     try {
-        const curr_game = await Game.findOne({"gameID": req.params.gameID})
+        const curr_game = await Game.findOne({"gameID": req.params.gameID});
+
+        if (curr_game.objects.includes(object)){
+            res.send("Already inputted this object.")
+            return;
+        }
+        
         //We want to add the object to a random index.
         //1. Create any random number between min (included) and max (not included): Math.random() * (max - min) + min;
         randomSeededIndex = Math.random() * (curr_game.objects.length - 0) + 0;
@@ -49,6 +56,7 @@ router.post('/:gameID/target', async (req, res) => {
         curr_game.save()
 
         res.status(201).json(curr_game)
+
     } catch (err) {
         console.log("Something went wrong!")
         res.status(500).json({message: err.message})
