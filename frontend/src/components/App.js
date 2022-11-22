@@ -4,6 +4,7 @@ import Register from './Register';
 import Home from './Home';
 import Lobby from './Lobby';
 import RequireAuth from './RequireAuth';
+import Profile from './Profile';
 import './App.css';
 
 function App() {
@@ -18,6 +19,9 @@ function App() {
                 </Route>
                 <Route element={<RequireAuth />}>
                     <Route path='/lobby/:lobbyID' element={<Lobby />} />
+                </Route>
+                <Route element={<RequireAuth />}>
+                    <Route path='/profile' element={<Profile />} />
                 </Route>
             </Routes>
         </Router>

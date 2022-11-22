@@ -75,9 +75,8 @@ function Home() {
                         </Button>
                     </Stack>
                 </Box>
-                {/* Link should bring user to personal account page */}
-                <Link href="login" variant="body2" sx={{ mt: 8 }}>
-                    {"View Account"}
+                <Link href="profile" variant="body2" sx={{ mt: 8 }}>
+                    {"View Account History"}
                 </Link>
             </Box>
         </Container>
