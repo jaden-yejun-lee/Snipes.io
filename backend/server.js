@@ -32,9 +32,6 @@ app.use('/gameModel', gameRouter)
 const userRouter = require("./routes/userRoute");
 app.use('/userModel', userRouter)
 
-const historyRouter = require("./routes/userHistoryRoute");
-app.use('/history', historyRouter)
-
 const photoRouter = require("./routes/photo")
 app.use('/upload', photoRouter)
 app.listen(8080, () => console.log('Server Started'))

@@ -2,7 +2,8 @@ const express = require('express')
 const router = express.Router();
 const Game = require('../models/gameModel')
 const jwt = require('jsonwebtoken')
-
+const User = require('../models/userModel')
+const Hist = require('../models/historyModel')
 
 // get the attributes of a game
 router.get('/:gameID', async (req, res) => {
@@ -30,8 +31,18 @@ router.get('/:gameID', async (req, res) => {
             res.status(403).send("Access denied")
             return
         }
+        //------------------------------------------------------------------
+        //also return the leaderboard -- TODO: Ingrid
+        team1Leaderboard = []
+        team2Leaderboard = []
+        var hist = null;
 
+        for (var a = 0; a <game.team1.length; a++){
+            curr_user = game.team1[a]
+            //somehow update the points
+        }
         res.json(game)
+        //res.json(game, team1Leaderboard, team2Leaderboard) TODO: Ingrid
     } catch (err) {
         console.log("Something went wrong!")
         res.status(500).json({message: err.message})
@@ -50,7 +61,7 @@ router.post('/', async (req, res) => {
     
     const game = new Game({
         gameID: generated_id,
-        status: "open",
+        state: "open",
         players: [],
         objects: [],
         team1: [],
@@ -89,21 +100,27 @@ router.post('/:gameID/state', async (req, res) => {
 
 // add an object to the game 
 router.post('/:gameID/target', async (req, res) => {
+    let {object} = req.body;
     try {
-        const curr_game = await Game.findOne({"gameID": req.params.gameID})
+        const curr_game = await Game.findOne({"gameID": req.params.gameID});
 
-        if (curr_game == null){
-            res.status(404).json({message: "No Game ID Found"})
-            return
+        if (curr_game.objects.includes(object)){
+            res.send("Already inputted this object.")
+            return;
         }
-
-        curr_game.objects.push({"object":req.body.object})
+        
+        //We want to add the object to a random index.
+        //1. Create any random number between min (included) and max (not included): Math.random() * (max - min) + min;
+        randomSeededIndex = Math.random() * (curr_game.objects.length - 0) + 0;
+        //2. insert at index: <array-name>.splice(<position-to-insert-items>,0,<item-1>,<item-2>,..,<item-n>)
+        curr_game.objects.splice(randomSeededIndex, 0, object)
         curr_game.save()
 
-        res.status(200).json(curr_game)
+        res.status(201).json(curr_game)
+
     } catch (err) {
-        console.log("Something went wrong!")
-        res.status(400).json({message: err.message})
+        console.log("Unable to push object.")
+        res.status(500).json({message: err.message})
     }
 })
 
