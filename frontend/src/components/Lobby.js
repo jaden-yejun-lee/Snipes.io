@@ -12,6 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { useParams } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import Leaderboard from './Leaderboard';
 
 function Lobby() {
     const { lobbyID } = useParams();
@@ -57,6 +58,7 @@ function Lobby() {
     return (
         gameState === 'teamSelect' ? <TeamSelectScreen lobbyID={lobbyID}></TeamSelectScreen> : <div>Hello</div>
         // gameState === 'objectSelect' ? <ObjectSelectScreen></ObjectSelectScreen> : <GameScreen></GameScreen>
+        // add gameState === 'end' for <Leaderboard lobbyID={lobbyID} points={points}></Leaderboard>
     );
 }
 
