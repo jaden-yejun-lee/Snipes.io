@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const PhotoSchema = mongoose.Schema({
     object: {
         type: String, 
-        required: true
     },
     image: {
         data: Buffer,
@@ -14,7 +13,6 @@ const PhotoSchema = mongoose.Schema({
     },
     timestamp: {
         type: String,
-        required: true
     }
 
 })

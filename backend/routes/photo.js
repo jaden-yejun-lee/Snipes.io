@@ -19,8 +19,10 @@ const upload = multer({
     storage: Storage
 }).single('image')  // this parameter has to match postman key which should be "image" and then select file for value
 
+
+
 // post a photo to db 
-router.post('/', (req, res) => {
+router.post('/:gameID/photos', (req, res) => {
     upload(req, res, (err) => {
         if(err) {
             console.log(err)
@@ -33,7 +35,7 @@ router.post('/', (req, res) => {
                     data: fs.readFileSync('./uploads/' + req.file.filename), // read in file from uploads folder (which gets automatically created)
                     contentType: 'image/png'
                 },
-                // FIGURE OUT USERS HEADRE STUFF
+                // FIGURE OUT USERS HEADER STUFF
                 user: jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email,
                 timestamp: Date.now()
             })
