@@ -12,10 +12,12 @@ const Storage = multer.diskStorage({
     },
 });
 
+
+
 // uploading files on mongodb
 const upload = multer({
     storage: Storage
-}).single('testImage')  // this parameter has to match postman key which should be "testImage" and then select file for value
+}).single('image')  // this parameter has to match postman key which should be "image" and then select file for value
 
 // post a photo to db 
 router.post('/', (req, res) => {
@@ -24,12 +26,16 @@ router.post('/', (req, res) => {
             console.log(err)
         }
         else {
+
             const newPhoto = new Photo({
-                name: req.body.name,
+                object: req.body.object,
                 image: {
                     data: fs.readFileSync('./uploads/' + req.file.filename), // read in file from uploads folder (which gets automatically created)
                     contentType: 'image/png'
-                }
+                },
+                // FIGURE OUT USERS HEADRE STUFF
+                user: jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email,
+                timestamp: Date.now()
             })
 
             newPhoto.save()
@@ -65,7 +71,7 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
-//GET: Get all the sales
+//GET: Get all the photos
 router.get('/', async (req, res) => {
     try {
         const photos = await Photo.find()
