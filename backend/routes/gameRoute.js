@@ -249,6 +249,4 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
     }
 })
 
-
-
 module.exports = router

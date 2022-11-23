@@ -54,5 +54,4 @@ const gameSchema = new mongoose.Schema({
 }, { collection: 'games',
 versionKey: false
 })
-
 module.exports = mongoose.model('Game', gameSchema)
