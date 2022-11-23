@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
     
     const game = new Game({
         gameID: generated_id,
-        status: "open",
+        state: "open",
         players: [],
         objects: [],
         team1: [],
