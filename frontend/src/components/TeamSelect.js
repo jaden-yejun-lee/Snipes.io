@@ -41,7 +41,7 @@ function TeamSelect(props) {
                     'Authorization': 'Bearer ' + token,
                 },
                 body: JSON.stringify({
-                    state: "objectSelect",
+                    state: "target_select",
                 })
             }).then(data => data.json());
         } catch (e) {
@@ -100,6 +100,7 @@ function TeamSelect(props) {
                     <Button
                         type="submit"
                         variant="contained"
+                        color="error"
                     >
                         Leave Game
                     </Button>

@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -29,7 +30,7 @@ function TargetSelect(props) {
                     'Authorization': 'Bearer ' + token,
                 },
                 body: JSON.stringify({
-                    target: target,
+                    object: target,
                 })
             }).then(data => data.json());
         } catch (e) {
@@ -41,15 +42,12 @@ function TargetSelect(props) {
         event.preventDefault();
         console.log('Deleting target ' + target);
         try {
-            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/target', {
+            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/target/' + target, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-                body: JSON.stringify({
-                    target: target,
-                })
             }).then(data => data.json());
         } catch (e) {
             console.log('Delete target failed: ' + e);
@@ -66,7 +64,7 @@ function TargetSelect(props) {
                     'Authorization': 'Bearer ' + token,
                 },
                 body: JSON.stringify({
-                    state: "inProgress",
+                    state: "in_progress",
                 })
             }).then(data => data.json());
         } catch (e) {
@@ -104,6 +102,14 @@ function TargetSelect(props) {
 }
 
 function TargetList(props) {
+    const [formTarget, setFormTarget] = useState('');
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        setFormTarget('');
+        props.handleAdd(event);
+    }
+
     return (
         <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
             <ListItem style={{ textAlign: 'center' }}>
@@ -124,7 +130,7 @@ function TargetList(props) {
                         </ListItem>)
                 }
             </List>
-            <Box component="form" onSubmit={props.handleAdd} sx={{ mt: 1 }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                 <Stack spacing={2} alignItems="center">
                     <TextField
                         margin="normal"
@@ -135,6 +141,8 @@ function TargetList(props) {
                         name="target"
                         sx={{ width: 1 / 2 }}
                         size="small"
+                        onChange={(event) => setFormTarget(event.target.value)}
+                        value={formTarget}
                     />
                     <Button
                         type="submit"

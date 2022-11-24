@@ -26,7 +26,7 @@ function Login() {
             password: password,
         });
         try {
-            const response = await fetch('http://'+window.location.hostname+':8080/login', {
+            const response = await fetch('http://'+window.location.hostname+':8080/userModel/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

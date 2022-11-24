@@ -14,13 +14,13 @@ function Home() {
         event.preventDefault();
         console.log('clicked create game');
         try {
-            const response = await fetch('http://'+window.location.hostname+':8080/gameModel/createLobby', {
-                method: 'GET',
+            const response = await fetch('http://'+window.location.hostname+':8080/gameModel/', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             }).then(data => data.json());
-            const lobbyID = response?.data?.lobbyID;
+            const lobbyID = response?.gameID;
             navigate('/lobby/'+lobbyID);
         } catch(e) {
             console.log('Create game failed: ' + e);

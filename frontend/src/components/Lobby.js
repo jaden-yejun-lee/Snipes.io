@@ -8,10 +8,11 @@ import Game from './Game';
 function Lobby() {
     const { lobbyID } = useParams();
     const { token } = useAuth();
-    const [gameState, setGameState] = useState('teamSelect');
+    const [gameState, setGameState] = useState();
     const [team1, setTeam1] = useState([]);
     const [team2, setTeam2] = useState([]);
     const [targets, setTargets] = useState([]);
+    const [photos, setPhotos] = useState([]);
     const [points, setPoints] = useState([0, 0]);
 
     console.log(lobbyID);
@@ -27,10 +28,11 @@ function Lobby() {
             }).then(data => data.json());
             // Need: lobby DNE error code, no permission error code, success code
             // Set gameState: teamSelect, targetSelect, inProgress
-            setGameState(response?.status);
-            setTeam1(response?.team1);
-            setTeam2(response?.team2);
-            setTargets(response?.objects);
+            setGameState(response?.state);
+            setTeam1(response?.team1.map((p) => p.userID));
+            setTeam2(response?.team2.map((p) => p.userID));
+            setTargets(response?.objects.map((o) => o.object));
+            setPhotos(response?.photos);
             //setPoints(response?.points);
         }
         catch (e) {
@@ -39,6 +41,7 @@ function Lobby() {
     };
 
     useEffect(() => {
+        getLobby();
         const interval = setInterval(() => {
             getLobby();
         }, 1000);
@@ -56,8 +59,9 @@ function Lobby() {
     // Frontend will display the proper screen
 
     return (
-        gameState === 'teamSelect' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
-        gameState === 'targetSelect' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : <Game points={points}></Game>
+        gameState === 'open' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
+        gameState === 'target_select' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : 
+        gameState === 'in_progress' ? <Game points={points}></Game> : <div></div>
     );
 }
 

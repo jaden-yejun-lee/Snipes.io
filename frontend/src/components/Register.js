@@ -26,7 +26,7 @@ function Register() {
             password: password,
         });
         try {
-            const response = await fetch('http://'+window.location.hostname+':8080/signup', {
+            const response = await fetch('http://'+window.location.hostname+':8080/userModel/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -25,15 +25,17 @@ app.use(bodyParser.json())
 //Connecting the [backend]/sales route to go to /routers/sales.js
 const salesRouter = require("./routes/sales")
 app.use('/sales', salesRouter) //anything with /subscribers will go into subscribers Router
+
 const gameRouter = require("./routes/gameRoute")
 app.use('/gameModel', gameRouter)
 
-const loginRouter = require("./routes/login")
-app.use('/login', loginRouter)
+const userRouter = require("./routes/userRoute");
+app.use('/userModel', userRouter)
 
-const signupRouter = require("./routes/signup");
-app.use('/signup', signupRouter)
+const historyRouter = require("./routes/userHistoryRoute");
+app.use('/history', historyRouter)
 
 const photoRouter = require("./routes/photo")
 app.use('/upload', photoRouter)
+
 app.listen(8080, () => console.log('Server Started'))

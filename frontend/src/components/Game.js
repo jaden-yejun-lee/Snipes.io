@@ -7,10 +7,9 @@ import Grid from '@mui/material/Grid';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Game(props) {
-    const location = useLocation();
     const navigate = useNavigate();
 
     const goto = (page, event) => {
