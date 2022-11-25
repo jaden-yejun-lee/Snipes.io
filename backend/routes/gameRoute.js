@@ -92,6 +92,23 @@ router.post('/', async (req, res) => {
 // update game state
 router.post('/:gameID/state', async (req, res) => {
     try {
+        //1. First verify that this user is valid to alter game state
+        /*let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+        let userFound = false
+
+        for (let i=0; i < game.players.length; i++){
+            if (game.players[i].userID == username){
+                userFound = true
+                break;
+            }
+        }
+
+        if (!userFound){
+            res.status(403).send("Access denied")
+            return
+        } */
+
+        //2. after user is verified, can change game state
     const curr_game = await Game.findOne({"gameID": req.params.gameID})
 
     if (curr_game == null){
@@ -101,6 +118,12 @@ router.post('/:gameID/state', async (req, res) => {
     
     //if done with target selecting, start selection for objects for the game
     if (curr_game.state == 'target_select' && req.body.state == "in_progress"){
+        //check at least 1 object
+        if(curr_game.objects.length == 0){
+            res.status(400).json({message: "No objects."})
+            return
+        }
+
         numTargets = 3
         //only have numTargets left in object array
         toRemove = curr_game.objects.length - numTargets
@@ -109,6 +132,36 @@ router.post('/:gameID/state', async (req, res) => {
         }
 
     }
+
+    //if we want to end the game, update all user's histories
+    else if(req.body.state == "game_over"){
+        gameid = curr_game.gameID
+        //create new history object for each user and add to their array
+        for (let i=0; i < curr_game.players.length; i++){
+            player = curr_game.players[i].userID
+            playerPoints = Math.random()*100 //TODO -- count how many points for a player
+            //addUserHistory(player, gameid, points)  
+            try {
+                const user = await User.findOne({"name": player})
+                const newHist = new Hist({gameID: gameid, points: playerPoints})
+                await newHist.save(); 
+                
+                // if (user.history === null){
+                //     console.log("null history")
+                //     user.history = []
+                // }
+                user.history.push(newHist)
+                await user.save();
+                //console.log(user.history)
+                console.log("Successfully added new history to a given user.")
+            } catch (err) {
+                console.log("Unable to add new history.")
+                res.status(500).json({message: err.message})
+                return
+            } 
+        }
+    }
+
     //update current state
     curr_game.state = req.body.state
 

@@ -139,28 +139,4 @@ router.get('/profile', async (req, res) => {
     }
 })
 
-//add a history to a specific user
-router.post('/', async (req, res) => {
-    let {username, gameID, points} = req.body;
-    try {
-        const user = await User.findOne({"name": username})
-        const newHist = new Hist({gameID: gameID, points: points})
-        await newHist.save(); 
-        
-        //console.log(user.history)
-        if (user.history === null){
-            console.log("null history")
-            user.history = []
-        }
-        user.history.push(newHist)
-        await user.save();
-        
-        res.json(user.history)
-        console.log("Successfully added new history to a given user.")
-    } catch (err) {
-        console.log("Unable to add new history.")
-        res.status(500).json({message: err.message})
-    }
-})
-
 module.exports = router
