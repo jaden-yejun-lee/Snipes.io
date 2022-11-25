@@ -97,7 +97,6 @@ router.post('/:gameID/state', async (req, res) => {
 })
 
 
-
 // add an object to the game 
 router.post('/:gameID/target', async (req, res) => {
     let {object} = req.body;
