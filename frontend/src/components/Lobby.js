@@ -31,7 +31,7 @@ function Lobby() {
             setGameState(response?.state);
             setTeam1(response?.team1.map((p) => p.userID));
             setTeam2(response?.team2.map((p) => p.userID));
-            setTargets(response?.objects.map((o) => o.object));
+            setTargets(response?.objects.map((o) => o.object).sort());
             setPhotos(response?.photos);
             //setPoints(response?.points);
         }
