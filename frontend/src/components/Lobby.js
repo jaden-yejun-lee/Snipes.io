@@ -61,7 +61,7 @@ function Lobby() {
     return (
         gameState === 'open' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
         gameState === 'target_select' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : 
-        gameState === 'in_progress' ? <Game points={points}></Game> : <div></div>
+        gameState === 'in_progress' ? <Game lobbyID={lobbyID} targets={targets} points={points}></Game> : <div></div>
     );
 }
 

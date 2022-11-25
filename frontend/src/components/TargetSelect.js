@@ -113,7 +113,7 @@ function TargetList(props) {
     return (
         <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
             <ListItem style={{ textAlign: 'center' }}>
-                <ListItemText primary={'Targets:'} />
+                <ListItemText primary={'Target selection:'} />
             </ListItem>
             <Divider />
             <List dense>
