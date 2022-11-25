@@ -9,12 +9,14 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import useAuth from '../hooks/useAuth';
 
 
 //https://www.geeksforgeeks.org/how-to-upload-image-and-preview-it-using-reactjs/
 //URL.createObjectURL: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
 function Upload(props) {
 
+    const { token } = useAuth();
     const [selectedPhoto, setSelectedPhoto] = useState();
     const [isSelected, setIsSelected] = useState(false);
     const [selectedObject, setSelectedObject] = useState("");
@@ -29,7 +31,30 @@ function Upload(props) {
         setIsSelected(true);
 
     }
-    const handleFileUpload = () => {
+    const handleFileUpload = async (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append('image', selectedPhoto); //req.bodyimage or req.file.image
+        formData.append('object', selectedObject); //req.object or req.file.object
+        try {
+            const response = await fetch('http://localhost:8080/upload/', { //might need to change later to have the lobby code
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'boundary': formData.boundary,
+                    'Authorization': 'Bearer ' + token,
+                },
+                
+                body: JSON.stringify({
+                    image: formData.get(['image']),
+                    object: formData.get(['object'])
+                })
+            }).then(data => data.json());
+        } catch (e) {
+            console.log('Upload photo failed: ' + e)
+        }
+        //const status = response?.status;
+        //setUploadStatus(state);
         console.log("file uploaded");
     }
 
@@ -48,6 +73,11 @@ function Upload(props) {
                     alignItems: 'center',
                 }}
             >
+                {isSelected ? (
+                    <p>Photo Taken At </p>
+                ) : (
+                    <></>
+                )} 
                 {isSelected ? (
                     <img src={selectedPhoto} width='400px' margin='1'/>
                 ) : (
