@@ -57,12 +57,6 @@ const gameSchema = new mongoose.Schema({
             }
         }
     ], 
-
-    // currentObjects: [
-    //     {
-    //         object: String
-    //     }
-    // ]
 }, { collection: 'games',
 versionKey: false
 })

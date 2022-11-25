@@ -15,8 +15,11 @@ router.get('/:gameID', async (req, res) => {
         var token = req.headers.authorization
         let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
 
+        //FOR TESTING
+        // let {username} = req.body;
+        // const user = await User.findOne({"name": username})
+    
         const game = await Game.findOne({"gameID": req.params.gameID})
-
         if (game == null){
             res.status(404).json({message: "No Game ID Found"})
             return
@@ -36,7 +39,11 @@ router.get('/:gameID', async (req, res) => {
             return
         }
         //------------------------------------------------------------------
-        //also return the leaderboard -- TODO: Ingrid
+        /*also return the leaderboard -- TODO
+        // create dictionary of user: points
+        // for each photo, check the user and add a point to the dictionary for that user
+        // iterate upon each team and sort by points then return
+
         team1Leaderboard = []
         team2Leaderboard = []
         var hist = null;
@@ -45,8 +52,9 @@ router.get('/:gameID', async (req, res) => {
             curr_user = game.team1[a]
             //somehow update the points
         }
+        res.json(game, team1Leaderboard, team2Leaderboard) */
+
         res.json(game)
-        //res.json(game, team1Leaderboard, team2Leaderboard) TODO: Ingrid
     } catch (err) {
         console.log("Something went wrong!")
         res.status(500).json({message: err.message})
@@ -83,7 +91,6 @@ router.post('/', async (req, res) => {
 
 // update game state
 router.post('/:gameID/state', async (req, res) => {
-    // GENERATE A GAMEID HERE AND REMOVE FROM URL
     try {
     const curr_game = await Game.findOne({"gameID": req.params.gameID})
 
@@ -91,9 +98,21 @@ router.post('/:gameID/state', async (req, res) => {
         res.status(404).json({message: "No Game ID Found"})
         return
     }
-    curr_game.state = req.body.state
-    curr_game.save()
+    
+    //if done with target selecting, start selection for objects for the game
+    if (curr_game.state == 'target_select' && req.body.state == "in_progress"){
+        numTargets = 3
+        //only have numTargets left in object array
+        toRemove = curr_game.objects.length - numTargets
+        for(var i=0; i<toRemove; i++){
+            curr_game.objects.pop()
+        }
 
+    }
+    //update current state
+    curr_game.state = req.body.state
+
+    curr_game.save()
     res.status(200).json(curr_game)
 
     } catch (err) {
@@ -101,29 +120,21 @@ router.post('/:gameID/state', async (req, res) => {
     }
 })
 
-
 // add an object to the game 
 router.post('/:gameID/target', async (req, res) => {
     let {object} = req.body;
     try {
-        const curr_game = await Game.findOne({"gameID": req.params.gameID});
-
-        if (curr_game.objects.includes(object)){
-            res.send("Already inputted this object.")
-            return;
-        }
-        
+        const curr_game = await Game.findOne({"gameID": req.params.gameID})
         //We want to add the object to a random index.
         //1. Create any random number between min (included) and max (not included): Math.random() * (max - min) + min;
         randomSeededIndex = Math.random() * (curr_game.objects.length - 0) + 0;
         //2. insert at index: <array-name>.splice(<position-to-insert-items>,0,<item-1>,<item-2>,..,<item-n>)
-        curr_game.objects.splice(randomSeededIndex, 0, object)
+        curr_game.objects.splice(randomSeededIndex, 0, {"object": object})
         curr_game.save()
-
+        console.log(curr_game.objects)
         res.status(201).json(curr_game)
-
     } catch (err) {
-        console.log("Unable to push object.")
+        console.log("Something went wrong!")
         res.status(500).json({message: err.message})
     }
 })
@@ -269,8 +280,6 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
         res.status(400).json({ message: err.message })
     }
 })
-
-
 
 // stores photos on local device
 const Storage = multer.diskStorage({
