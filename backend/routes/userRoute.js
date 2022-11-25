@@ -13,8 +13,9 @@ router.post("/signup", async (req, res, next) => {
     const user = new User({
         name: name,
         email: email,
-        password: password
+        password: password,
     })
+	console.log(req.body)
 	try {
         const userExist = await User.exists({email: email});
         if (userExist) {

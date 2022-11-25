@@ -4,6 +4,10 @@ const Game = require('../models/gameModel')
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
 const Hist = require('../models/historyModel')
+const multer = require('multer')
+const fs = require('fs')
+const Photo = require('../models/photo')
+
 
 // get the attributes of a game
 router.get('/:gameID', async (req, res) => {
@@ -65,7 +69,8 @@ router.post('/', async (req, res) => {
         players: [],
         objects: [],
         team1: [],
-        team2: []
+        team2: [],
+        photos: []
     })
 
     try {
@@ -265,4 +270,98 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
     }
 })
 
+
+
+// stores photos on local device
+const Storage = multer.diskStorage({
+    destination: 'uploads',
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    },
+});
+
+// uploading files on mongodb
+const upload = multer({
+    storage: Storage
+}).single('image')  // this parameter has to match postman key which should be "image" and then select file for value
+
+// post a photo to db 
+router.post('/:gameID/photos', async(req, res) => {
+    try {
+    var token = req.headers.authorization
+    let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+    console.log(username)
+    const curr_game = await Game.findOne({"gameID": req.params.gameID})
+
+    if (curr_game == null) {
+        res.status(504).json({message: "No Game ID Found"})
+        return
+    }
+
+
+    upload(req, res, (err) => {
+        if(err) {
+            res.status(504).json({message: "Could Not Uplaod Photo"})
+        }
+        else {
+
+            const newPhoto = new Photo({
+                object: req.body.object,
+                image: {
+                    data: fs.readFileSync('./uploads/' + req.file.filename), // read in file from uploads folder (which gets automatically created)
+                    contentType: 'image/png'
+                },
+                user: username,
+                timestamp: Date.now()
+            })
+
+            curr_game.photos.push(newPhoto)
+            curr_game.save()
+            .then(() => res.status(200).json(curr_game))
+            .catch((err) => res.status(err).json({message: "Current Game Could Not Be Saved Due To Photo"}));
+
+            // deletes file from local so that unnecessary space is not used in holding pictures in upload folder
+            fs.unlink('./uploads/' + req.file.filename, (err) => {
+                if (err) {
+                    res.status(504).json({message: "Could Not Delete Photo From Local Device"})
+                    return
+                }
+            })
+          
+        }
+    }) 
+    } catch(err) {
+        res.status(500).json({ message: err.message })
+    }
+
+})
+
+
+
+// NEED TO WORK ON GET ALL
+
+
+//GET: Get a photo with id
+router.get('/:gameID/photos/:id', async (req, res) => {
+    try {
+        var token = req.headers.authorization
+        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+
+        const game = await Game.findOne({"gameID": req.params.gameID})
+
+        if (game == null){
+            res.status(504).json({message: "No Game ID Found"})
+            return
+        }
+
+        for (let i = 0; i < game.photos.length; i++) {
+            if (game.photos[i]._id == req.params.id) {
+                res.status(200).json(game.photos[i])
+            }
+        }
+    } catch(err) {
+        console.log("Something went wrong!")
+        res.status(500).json({message: err.message})
+    }
+})
 module.exports = router

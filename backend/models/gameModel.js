@@ -39,13 +39,25 @@ const gameSchema = new mongoose.Schema({
             userID: String
         }
     ], 
-    // photos: [
-    //   {
-    //     userEmail: String,
-    //     photo: String, //TODO: What type of object will the photo be?????
-    //     required: true
-    //   }
-    // ],
+    // photo array
+    photos: [
+        {
+            object: {
+                type: String, 
+            },
+            image: {
+                data: Buffer,
+                contentType: String
+            },
+            user: {
+                type: String, 
+            },
+            timestamp: {
+                type: String,
+            }
+        }
+    ], 
+
     // currentObjects: [
     //     {
     //         object: String
