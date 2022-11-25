@@ -84,7 +84,7 @@ function TargetSelect(props) {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    Lobby Code: {props.lobbyID}
+                    Game ID: {props.lobbyID}
                 </Typography>
                 <TargetList lobbyID={props.lobbyID} targets={props.targets} handleAdd={handleAddTarget} handleDelete={handleDeleteTarget}></TargetList>
                 <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>

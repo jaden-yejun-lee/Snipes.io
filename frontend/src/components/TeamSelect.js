@@ -77,7 +77,7 @@ function TeamSelect(props) {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    Lobby Code: {props.lobbyID}
+                    Game ID: {props.lobbyID}
                 </Typography>
                 <Grid container sx={{ mt: 4 }}>
                     <Grid item xs={6}>

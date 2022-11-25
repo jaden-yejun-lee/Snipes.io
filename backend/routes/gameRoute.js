@@ -101,6 +101,13 @@ router.post('/:gameID/target', async (req, res) => {
             return
         }
 
+        for (let i=0; i < curr_game.objects.length; i++){
+            if ((curr_game.objects[i].object) == req.body.object){
+                res.status(400).send("Already inputted this object.")
+                return;
+            }
+        }
+
         curr_game.objects.push({"object":req.body.object})
         curr_game.save()
 
@@ -112,7 +119,7 @@ router.post('/:gameID/target', async (req, res) => {
 })
 
 // delete an object from a game
-router.delete('/:gameID/target', async (req, res) => {
+router.delete('/:gameID/target/:target', async (req, res) => {
     try {
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
         
@@ -123,7 +130,7 @@ router.delete('/:gameID/target', async (req, res) => {
 
         var deleted = false
         for (let i=0; i < curr_game.objects.length; i++){
-            if ((curr_game.objects[i].object) == req.body.object){
+            if ((curr_game.objects[i].object) == req.params.target){
                 curr_game.objects.splice(i, 1)
                 deleted = true
                 break

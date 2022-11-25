@@ -51,7 +51,7 @@ function Game(props) {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    Lobby Code: {props.lobbyID}
+                    Game ID: {props.lobbyID}
                 </Typography>
                 <Grid container sx={{ mt: 4, mb: 2 }}>
                     <Grid item xs={6}>
