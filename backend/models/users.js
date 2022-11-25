@@ -1,18 +1,19 @@
 const mongoose = require('mongoose')
 
 //reference: https://stackoverflow.com/questions/55878496/mongoose-populate-on-two-dimensional-array
+//schema model for history
 const historySchema = new mongoose.Schema({
     gameID: {
         type: String,
-        required: true
+        required: false
     },
     points: {
         type: Number,
-        required: true
+        required: false
     },
 })
 
-//The schema model for Sale
+//The schema model for users
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
