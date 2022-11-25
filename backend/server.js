@@ -19,21 +19,11 @@ db.once('open', () => (console.log('Connected to Database'))) //Once you can ope
 // app.use(express.json())
 app.use(bodyParser.json())
 
-//Uploading images to MongoDB
-
-//JUST FOR TEMP PROJECT
-//Connecting the [backend]/sales route to go to /routers/sales.js
-const salesRouter = require("./routes/sales")
-app.use('/sales', salesRouter) //anything with /subscribers will go into subscribers Router
-
 const gameRouter = require("./routes/gameRoute")
 app.use('/gameModel', gameRouter)
 
 const userRouter = require("./routes/userRoute");
 app.use('/userModel', userRouter)
-
-const historyRouter = require("./routes/userHistoryRoute");
-app.use('/history', historyRouter)
 
 const photoRouter = require("./routes/photo")
 app.use('/upload', photoRouter)

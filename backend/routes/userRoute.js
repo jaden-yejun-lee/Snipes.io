@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const User = require('../models/userModel')
 const jwt = require('jsonwebtoken')
+const Hist = require('../models/historyModel')
 
 //TEMPORARY SECRET KEY
 tempSecretKey = "boopoop"
@@ -81,5 +82,60 @@ router.post("/login", async (req, res, next) => {
 		},
 		});
 });
+
+//retrieve a user's points for a specific game
+router.get('/getGame', async (req, res) => {
+    let {username, gameID} = req.body;
+    try {
+        const user = await User.findOne({"name": username})
+        found = false;
+        var hist = null;
+
+        for (var i = 0; i < user.history.length; i++){
+            //search each history document for the specific game
+            hist = await Hist.findById(user.history[i])
+            if (hist.gameID === gameID){
+                found = true;
+                break;
+            }
+        }
+
+        if(found){
+            console.log(hist)
+            res.json(hist)
+            console.log("Successfully returned points of given game.")
+        }
+        else {
+            console.log("Unable to find specific game.")
+            res.status(500).json({message: err.message})
+        }
+    } catch (err) {
+        console.log("Unable to find specific game.")
+        res.status(500).json({message: err.message})
+    }
+})
+
+//retrieve all history of one player's profile
+router.get('/profile', async (req, res) => {
+	//FOR TESTING
+	//let {username} = req.body;
+	//const user = await User.findOne({"name": username})
+    
+	try {
+		let user = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+        var allHistories = [];
+        for (var i = 0; i < user.history.length; i++){
+            //for each history document
+            const hist = await Hist.findById(user.history[i])
+            allHistories.push([hist.gameID, hist.points])
+        }
+        console.log(allHistories)
+        res.json(allHistories)
+        console.log("Successfully return all history of given user.")
+    } catch (err) {
+        console.log("Unable to display history.")
+        res.status(500).json({message: err.message})
+    }
+})
 
 module.exports = router

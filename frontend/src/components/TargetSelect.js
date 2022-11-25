@@ -91,7 +91,7 @@ function TargetSelect(props) {
                     <Button
                         type="submit"
                         variant="contained"
-                        sx={{ mt: 8, mb: 2 }}
+                        sx={{ mt: 4, mb: 2 }}
                     >
                         Start Game!
                     </Button>

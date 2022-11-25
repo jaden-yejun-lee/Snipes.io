@@ -2,19 +2,23 @@ const express = require('express')
 const router = express.Router();
 const Game = require('../models/gameModel')
 const jwt = require('jsonwebtoken')
+const User = require('../models/userModel')
+const Hist = require('../models/historyModel')
 const multer = require('multer')
 const fs = require('fs')
-const Photo = require('../models/photo');
+const Photo = require('../models/photo')
 
 
 // get the attributes of a game
 router.get('/:gameID', async (req, res) => {
     try {
-        var token = req.headers.authorization
         let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
 
+        //FOR TESTING
+        // let {username} = req.body;
+        // const user = await User.findOne({"name": username})
+    
         const game = await Game.findOne({"gameID": req.params.gameID})
-
         if (game == null){
             res.status(404).json({message: "No Game ID Found"})
             return
@@ -33,6 +37,21 @@ router.get('/:gameID', async (req, res) => {
             res.status(403).send("Access denied")
             return
         }
+        //------------------------------------------------------------------
+        /*also return the leaderboard -- TODO
+        // create dictionary of user: points
+        // for each photo, check the user and add a point to the dictionary for that user
+        // iterate upon each team and sort by points then return
+
+        team1Leaderboard = []
+        team2Leaderboard = []
+        var hist = null;
+
+        for (var a = 0; a <game.team1.length; a++){
+            curr_user = game.team1[a]
+            //somehow update the points
+        }
+        res.json(game, team1Leaderboard, team2Leaderboard) */
 
         res.json(game)
     } catch (err) {
@@ -71,28 +90,90 @@ router.post('/', async (req, res) => {
 
 // update game state
 router.post('/:gameID/state', async (req, res) => {
-    // GENERATE A GAMEID HERE AND REMOVE FROM URL
     try {
-    const curr_game = await Game.findOne({"gameID": req.params.gameID})
+        const curr_game = await Game.findOne({"gameID": req.params.gameID})
 
-    if (curr_game == null){
-        res.status(404).json({message: "No Game ID Found"})
-        return
-    }
-    curr_game.state = req.body.state
-    curr_game.save()
+        if (curr_game == null){
+            res.status(404).json({message: "No Game ID Found"})
+            return
+        }
 
-    res.status(200).json(curr_game)
+        //1. First verify that this user is valid to alter game state
+        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+        let userFound = false
+
+        for (let i=0; i < curr_game.players.length; i++){
+            if (curr_game.players[i].userID == username){
+                userFound = true
+                break;
+            }
+        }
+        if (!userFound){
+            res.status(403).send("Access denied")
+            return
+        }
+
+        //2. after user is verified, can change game state    
+        //if done with target selecting, start selection for objects for the game
+        if (curr_game.state == 'target_select' && req.body.state == "in_progress"){
+            //check at least 1 object
+            if(curr_game.objects.length == 0){
+                res.status(400).json({message: "No objects."})
+                return
+            }
+
+            numTargets = 3
+            //only have numTargets left in object array
+            toRemove = curr_game.objects.length - numTargets
+            for(var i=0; i<toRemove; i++){
+                curr_game.objects.pop()
+            }
+
+        }
+
+        //if we want to end the game, update all user's histories
+        else if(req.body.state == "game_over"){
+            gameid = curr_game.gameID
+            //create new history object for each user and add to their array
+            for (let i=0; i < curr_game.players.length; i++){
+                player = curr_game.players[i].userID
+                playerPoints = Math.random()*100 //TODO -- count how many points for a player
+                //addUserHistory(player, gameid, points)  
+                try {
+                    const user = await User.findOne({"name": player})
+                    const newHist = new Hist({gameID: gameid, points: playerPoints})
+                    await newHist.save(); 
+                    
+                    // if (user.history === null){
+                    //     console.log("null history")
+                    //     user.history = []
+                    // }
+                    user.history.push(newHist)
+                    await user.save();
+                    //console.log(user.history)
+                    console.log("Successfully added new history to a given user.")
+                } catch (err) {
+                    console.log("Unable to add new history.")
+                    res.status(500).json({message: err.message})
+                    return
+                } 
+            }
+        }
+
+        //update current state
+        curr_game.state = req.body.state
+
+        curr_game.save()
+        res.status(200).json(curr_game)
 
     } catch (err) {
         res.status(400).json({ message: err.message })
     }
 })
 
-
-
 // add an object to the game 
 router.post('/:gameID/target', async (req, res) => {
+    let {object} = req.body;
     try {
         const curr_game = await Game.findOne({"gameID": req.params.gameID})
 
@@ -102,19 +183,23 @@ router.post('/:gameID/target', async (req, res) => {
         }
 
         for (let i=0; i < curr_game.objects.length; i++){
-            if ((curr_game.objects[i].object) == req.body.object){
+            if ((curr_game.objects[i].object) == object){
                 res.status(400).send("Already inputted this object.")
                 return;
             }
         }
 
-        curr_game.objects.push({"object":req.body.object})
+        //We want to add the object to a random index.
+        //1. Create any random number between min (included) and max (not included): Math.random() * (max - min) + min;
+        randomSeededIndex = Math.random() * (curr_game.objects.length - 0) + 0;
+        //2. insert at index: <array-name>.splice(<position-to-insert-items>,0,<item-1>,<item-2>,..,<item-n>)
+        curr_game.objects.splice(randomSeededIndex, 0, {"object": object})
         curr_game.save()
-
-        res.status(200).json(curr_game)
+        //console.log(curr_game.objects)
+        res.status(201).json(curr_game)
     } catch (err) {
         console.log("Something went wrong!")
-        res.status(400).json({message: err.message})
+        res.status(500).json({message: err.message})
     }
 })
 
@@ -258,8 +343,6 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
         res.status(400).json({ message: err.message })
     }
 })
-
-
 
 // stores photos on local device
 const Storage = multer.diskStorage({
