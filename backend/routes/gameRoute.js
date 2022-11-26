@@ -360,23 +360,23 @@ const upload = multer({
 // post a photo to db 
 router.post('/:gameID/photos', async(req, res) => {
     try {
-    var token = req.headers.authorization
     let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
-    console.log(username)
+
     const curr_game = await Game.findOne({"gameID": req.params.gameID})
 
     if (curr_game == null) {
-        res.status(504).json({message: "No Game ID Found"})
+        res.status(404).json({message: "No Game ID Found"})
         return
     }
-
-
     upload(req, res, (err) => {
         if(err) {
-            res.status(504).json({message: "Could Not Uplaod Photo"})
+            res.status(500).json({message: "Could Not Uplaod Photo"})
         }
         else {
-
+            if (!req.file) {
+                res.status(400).json({message: "No photo selected"})
+                return
+            }
             const newPhoto = new Photo({
                 object: req.body.object,
                 image: {
@@ -395,7 +395,7 @@ router.post('/:gameID/photos', async(req, res) => {
             // deletes file from local so that unnecessary space is not used in holding pictures in upload folder
             fs.unlink('./uploads/' + req.file.filename, (err) => {
                 if (err) {
-                    res.status(504).json({message: "Could Not Delete Photo From Local Device"})
+                    res.status(500).json({message: "Could Not Delete Photo From Local Device"})
                     return
                 }
             })
@@ -416,9 +416,6 @@ router.post('/:gameID/photos', async(req, res) => {
 //GET: Get a photo with id
 router.get('/:gameID/photos/:id', async (req, res) => {
     try {
-        var token = req.headers.authorization
-        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
-
         const game = await Game.findOne({"gameID": req.params.gameID})
 
         if (game == null){
@@ -427,7 +424,7 @@ router.get('/:gameID/photos/:id', async (req, res) => {
         }
 
         for (let i = 0; i < game.photos.length; i++) {
-            if (game.photos[i]._id == req.params.id) {
+            if (game.photos[i]._id.toString() == req.params.id) {
                 res.status(200).json(game.photos[i])
             }
         }

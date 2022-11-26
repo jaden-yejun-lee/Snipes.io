@@ -4,6 +4,8 @@ import Register from './Register';
 import Home from './Home';
 import Lobby from './Lobby';
 import RequireAuth from './RequireAuth';
+import Upload from './Upload';
+import KillFeed from './KillFeed';
 import './App.css';
 
 function App() {
@@ -17,7 +19,10 @@ function App() {
                     <Route path='/home' element={<Home />} />
                 </Route>
                 <Route element={<RequireAuth />}>
-                    <Route path='/lobby/:lobbyID' element={<Lobby />} />
+                    <Route path='/lobby/:lobbyID' element={<Lobby />}>
+                        <Route path='upload' element={<Upload />} />
+                        <Route path='killFeed' element={<KillFeed />} />
+                    </Route>
                 </Route>
             </Routes>
         </Router>
