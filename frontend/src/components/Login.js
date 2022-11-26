@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -26,7 +26,7 @@ function Login() {
             password: password,
         });
         try {
-            const response = await fetch('http://localhost:8080/login', {
+            const response = await fetch('http://'+window.location.hostname+':8080/userModel/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

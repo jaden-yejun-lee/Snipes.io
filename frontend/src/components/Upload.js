@@ -1,5 +1,5 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useOutletContext } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -8,58 +8,49 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import Typography from '@mui/material/Typography';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import useAuth from '../hooks/useAuth';
+import { Stack } from "@mui/system";
 
 
 //https://www.geeksforgeeks.org/how-to-upload-image-and-preview-it-using-reactjs/
 //URL.createObjectURL: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
-function Upload(props) {
-
+function Upload() {
     const { token } = useAuth();
+    const [lobbyID, , targets] = useOutletContext();
     const [selectedPhoto, setSelectedPhoto] = useState();
     const [isSelected, setIsSelected] = useState(false);
-    const [selectedObject, setSelectedObject] = useState("");
-    const objects = ["Tree", "Trash Can", "Pole"] // const objects = props.objects;
-
-    let menuItemList = objects.map((object) => {
-        return <MenuItem key={object} value={object}>{object}</MenuItem> //Might need to do object.name depending on how objects is provided
-    })
+    const [selectedTarget, setSelectedTarget] = useState('');
 
     const fileSelectedHandler = (event) => {
-        setSelectedPhoto(URL.createObjectURL(event.target.files[0]));
+        setSelectedPhoto(event.target.files[0]);
         setIsSelected(true);
-
     }
+
+    const handleTargetSelect = (event) => {
+        setSelectedTarget(event.target.value);
+    }
+
     const handleFileUpload = async (event) => {
         event.preventDefault();
         const formData = new FormData();
-        formData.append('image', selectedPhoto); //req.bodyimage or req.file.image
-        formData.append('object', selectedObject); //req.object or req.file.object
+        formData.append('image', selectedPhoto);
+        formData.append('object', selectedTarget);
         try {
-            const response = await fetch('http://localhost:8080/upload/', { //might need to change later to have the lobby code
+            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + lobbyID + '/photos', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    // 'boundary': formData.boundary,
                     'Authorization': 'Bearer ' + token,
                 },
-                
-                body: JSON.stringify({
-                    image: formData.get(['image']),
-                    object: formData.get(['object'])
-                })
+                body: formData,
             }).then(data => data.json());
+            setSelectedPhoto();
+            setIsSelected(false);
+            setSelectedTarget('')
         } catch (e) {
             console.log('Upload photo failed: ' + e)
         }
-        //const status = response?.status;
-        //setUploadStatus(state);
-        console.log("file uploaded");
-    }
-
-    const handleObjectSelect = (event) => {
-        setSelectedObject(event.target.value);
     }
 
     return (
@@ -73,51 +64,65 @@ function Upload(props) {
                     alignItems: 'center',
                 }}
             >
-                {isSelected ? (
-                    <p>Photo Taken At </p>
-                ) : (
-                    <></>
-                )} 
-                {isSelected ? (
-                    <img src={selectedPhoto} width='400px' margin='1'/>
-                ) : (
-                    <p>Please select a photo</p>
-                )} 
-                <Button
-                    component="label"
-                    variant="outlined"
-                    startIcon={<UploadFileIcon />}
-                    sx={{ m: 2, textAlign: "center" }}
-                >
+                <Typography component="h1" variant="h5">
+                    Game ID: {lobbyID}
+                </Typography>
+                <Box component="form" onSubmit={handleFileUpload} sx={{ mt: 4, textAlign: 'center' }}>
                     {isSelected ? (
-                        ("Select a New Photo")
-                    ): (
-                        ("Select Photo")
+                        <Typography component="h5" variant="subtitle1">
+                            Selected Photo:
+                        </Typography>
+                    ) : (
+                        <></>
                     )}
-                    <input type="file" hidden onChange={fileSelectedHandler} />
-                </Button>
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120}} size="small">
-                    <InputLabel id="demo-simple-select--standard-small">Object Name</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-standard-small"
-                        id="demo-simple-select-standard"
-                        value={selectedObject}
-                        label="Object"
-                        onChange={handleObjectSelect}
-                        sx={{alignItems: 'center'}}
-                    >
-                        {menuItemList}
-                    </Select>
-                </FormControl>
-                <Button
-                    component="label"
-                    variant="contained"
-                    onClick={handleFileUpload}
-                    sx={{ m: 1 }}
-                >
-                    Upload
-                    <input type="file" hidden onChange={handleFileUpload} />
-                </Button>
+                    {isSelected ? (
+                        <img src={URL.createObjectURL(selectedPhoto)} width='400px' />
+                    ) : (
+                        <Typography component="h5" variant="subtitle1">
+                            Please select a photo:
+                        </Typography>
+                    )}
+                    <Stack spacing={4} alignItems="center">
+                        <Button
+                            component="label"
+                            variant="outlined"
+                            startIcon={<UploadFileIcon />}
+                            sx={{ textAlign: "center" }}
+                        >
+                            {isSelected ? (
+                                ("Select New Photo")
+                            ) : (
+                                ("Select Photo")
+                            )}
+                            <input type="file" hidden onChange={fileSelectedHandler} onClick={(event) => event.target.value = null} />
+                        </Button>
+                        <FormControl
+                            variant="standard"
+                            sx={{ minWidth: 120 }}
+                            size="small"
+                            required
+                        >
+                            <InputLabel>Target Name</InputLabel>
+                            <Select
+                                value={selectedTarget}
+                                label="Target"
+                                onChange={handleTargetSelect}
+                                sx={{ alignItems: 'center' }}
+                            >
+                                {
+                                    targets.map((target) =>
+                                        <MenuItem key={target} value={target}>{target}</MenuItem>)
+                                }
+                            </Select>
+                        </FormControl>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                        >
+                            Upload
+                        </Button>
+                    </Stack>
+                </Box>
             </Box>
         </Container>
     );

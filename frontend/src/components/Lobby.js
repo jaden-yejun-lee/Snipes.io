@@ -12,202 +12,71 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { useParams, useOutlet, Outlet } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import TeamSelect from './TeamSelect';
+import TargetSelect from './TargetSelect';
+import Game from './Game';
 
 function Lobby() {
     const { lobbyID } = useParams();
     const { token } = useAuth();
-    const [gameState, setGameState] = useState('teamSelect');
-    const [photoData, setPhotoData] = useState([
-        {
-            ID: '63772d763f9905f7b9f72ec7',
-            username: "test1",
-            target: "target1",
-            timestamp: "1:00",
-        }, 
-        {
-            ID: '63773057685a4a782de710cb',
-            username: "test2",
-            target: "target2",
-            timestamp: "2:00",
-        },
-    ]);
     const outlet = useOutlet();
+
+    const [gameState, setGameState] = useState();
+    const [team1, setTeam1] = useState([]);
+    const [team2, setTeam2] = useState([]);
+    const [targets, setTargets] = useState([]);
+    const [points, setPoints] = useState([0, 0]);
+    const [photos, setPhotos] = useState([]);
 
     console.log(lobbyID);
 
     const getLobby = async () => {
         try {
-            const response = await fetch('http://localhost:8080/lobby', {
+            const response = await fetch('http://'+window.location.hostname+':8080/gameModel/'+lobbyID, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-                body: JSON.stringify({
-                    lobbyID: lobbyID,
-                })
             }).then(data => data.json());
             // Need: lobby DNE error code, no permission error code, success code
-            // Set gameState: teamSelect, objectSelect, inProgress
-            const state = response?.data?.gameState;
-            setGameState(state);
+            // Set gameState: teamSelect, targetSelect, inProgress
+            setGameState(response?.state);
+            setTeam1(response?.team1.map((p) => p.userID));
+            setTeam2(response?.team2.map((p) => p.userID));
+            setTargets(response?.objects.map((o) => o.object).sort());
+            setPhotos(response?.photos.map((p) => {return {image: p.image, username: p.user, timestamp: parseInt(p.timestamp), target: p.object}}));
+            //setPoints(response?.points);
         }
         catch (e) {
             console.log('Fetch lobby failed: ' + e);
         }
     };
 
-    getLobby();
-
+    useEffect(() => {
+        getLobby();
+        const interval = setInterval(() => {
+            getLobby();
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
     // TODO: Lobby logic (@BACKEND)
     // If lobby does not exist, return lobby DNE error code. 
     // Frontend can diplay alert: Lobby not found.
     // Otherwise if gameState=="teamSelect", add user to lobby and return success code and current gameState ("teamSelect")
     // Frontend will display the TeamScreen
-    // Otherwise, (in object select or game in progress) if user not in lobby, return no permissions error code. 
+    // Otherwise, (in target select or game in progress) if user not in lobby, return no permissions error code. 
     // Frontend will redirect back to home screen. Maybe display alert: Game already started.
-    // Otherwise, return success code and current gameState ("objectScreen" or "inProgress")
+    // Otherwise, return success code and current gameState ("targetSelect" or "inProgress")
     // Frontend will display the proper screen
 
     return (
-        outlet === null ? (gameState === 'teamSelect' ? <TeamSelectScreen lobbyID={lobbyID}></TeamSelectScreen> : <div>Hello</div>) : <Outlet context={[photoData, setPhotoData]} />
-        // gameState === 'objectSelect' ? <ObjectSelectScreen></ObjectSelectScreen> : <GameScreen></GameScreen>
-    );
-}
+        outlet === null ? 
+        (gameState === 'open' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
+        gameState === 'target_select' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : 
+        gameState === 'in_progress' ? <Game lobbyID={lobbyID} targets={targets} points={points}></Game> : <></>) :
+        <Outlet context={[lobbyID, photos, targets]} />
 
-function TeamSelectScreen(props) {
-    const { token } = useAuth();
-    const [team1, setTeam1] = useState([]);
-    const [team2, setTeam2] = useState([]);
-
-    const updateTeams = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/lobbyTeams', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
-                body: JSON.stringify({
-                    lobbyID: props.lobbyID,
-                })
-            }).then(data => data.json());
-            setTeam1(response?.data?.team1);
-            setTeam2(response?.data?.team2);
-        }
-        catch (e) {
-            console.log('Update lobby failed: ' + e);
-        }
-    };
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            updateTeams(token, props.lobbyID);
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleStart = async (event) => {
-        event.preventDefault();
-        try {
-            const response = await fetch('http://localhost:8080/updateLobby', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
-                body: JSON.stringify({
-                    lobbyID: props.lobbyID,
-                    // TODO
-                })
-            }).then(data => data.json());
-        } catch (e) {
-            console.log('Start game failed: ' + e);
-        }
-    };
-
-    return (
-        <Container component="main" maxWidth="xs">
-            <CssBaseline />
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
-                <Typography component="h1" variant="h5">
-                    Lobby Code: {props.lobbyID}
-                </Typography>
-                <Grid container sx={{ mt: 4 }}>
-                    <Grid item xs={6}>
-                        <Team name="Team 1" players={team1}></Team>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Team name="Team 2" players={team2}></Team>
-                    </Grid>
-                </Grid>
-                <Box component="form" onSubmit={handleStart} sx={{ mt: 1 }}>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Start Game
-                    </Button>
-                </Box>
-            </Box>
-        </Container >
-    );
-}
-
-function Team(props) {
-    const { token } = useAuth();
-
-    const handleJoin = async (event) => {
-        event.preventDefault();
-        console.log('Joined ' + props.name);
-        try {
-            const response = await fetch('http://localhost:8080/updateLobby', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
-                body: JSON.stringify({
-                    lobbyID: props.lobbyID,
-                    // TODO
-                })
-            }).then(data => data.json());
-        } catch (e) {
-            console.log('Join team failed: ' + e);
-        }
-    };
-
-    return (
-        <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-            <ListItem style={{ textAlign: 'center' }}>
-                <ListItemText primary={props.name + ':'} />
-            </ListItem>
-            <Divider />
-            <List>
-                {
-                    props.players.map((item) =>
-                        <ListItem key={item} style={{ textAlign: 'center' }}>
-                            <ListItemText primary={item} />
-                        </ListItem>)
-                }
-            </List>
-            <Box component="form" onSubmit={handleJoin} sx={{ textAlign: 'center' }}>
-                <Button
-                    type="submit"
-                    variant="contained"
-                >
-                    Join {props.team}
-                </Button>
-            </Box>
-        </Box>
     );
 }
 

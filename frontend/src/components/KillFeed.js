@@ -7,44 +7,28 @@ import Container from '@mui/material/Container';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
+import Typography from '@mui/material/Typography';
 
 function KillFeed() {
-    const [photoData, setPhotoData] = useOutletContext();
+    const [lobbyID, photos] = useOutletContext();
     const [images, setImages] = useState([]);
 
-    const getImage = async (ID) => {
-        try {
-            const response = await fetch('http://' + window.location.hostname + ':8080/upload/' + ID, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            }).then(data => data.json());
-            const buf = response?.image?.data;
-            return Buffer.from(buf.data).toString('base64');
-        } catch (e) {
-            console.log('Get image ' + ID + ' failed: ' + e);
-            return null;
-        }
-    }
-
-    const getImages = async () => {
+    const formatImages = () => {
         const imgs = [];
-        for (let i in photoData) {
+        for (let i in photos) {
             imgs.push({
-                img: await getImage(photoData[i].ID),
-                username: photoData[i].username,
-                target: photoData[i].target,
-                timestamp: photoData[i].timestamp,
+                image: Buffer.from(photos[i].image.data).toString('base64'),
+                username: photos[i].username,
+                timestamp: new Date(photos[i].timestamp).toLocaleTimeString('en-US'),
+                target: photos[i].target,
             });
         }
         setImages(imgs);
     }
 
     useEffect(() => {
-        getImages();
-    }, []);
-    
+        formatImages();
+    }, [photos]);
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -56,16 +40,19 @@ function KillFeed() {
                     alignItems: 'center',
                 }}
             >
-                <ImageList cols={1} sx={{ width: 3 / 4 }}>
+                <Typography component="h1" variant="h5">
+                    Game ID: {lobbyID}
+                </Typography>
+                <ImageList cols={1} sx={{ mt: 4, width: 3 / 4 }}>
                     {images.map((img) => (
                         <ImageListItem key={img.timestamp} sx={{mb: 2}}>
                             <img
-                                src={`data:image/png;base64,${img.img}`}
+                                src={`data:image/png;base64,${img.image}`}
                                 loading="lazy"
                                 style={{ width: '100%' }}
                             />
                             <ImageListItemBar
-                                subtitle={img.timestamp + ': ' + img.username + ' (' + img.target + ')'}
+                                subtitle={img.timestamp + ': ' + img.username + ' sniped ' + img.target}
                                 position="below"
                             />
                         </ImageListItem>
