@@ -408,7 +408,6 @@ router.post('/:gameID/photos', async (req, res) => {
                 })
 
                 // update game leaderboard
-                let userFound = false;
                 for (let i = 0; i < curr_game.leaderboard.length; i++) {
                     if (curr_game.leaderboard[i].userID === username) {
                         curr_game.leaderboard[i].points++;
@@ -416,32 +415,6 @@ router.post('/:gameID/photos', async (req, res) => {
                         break;
                     }
                 }
-                if (!userFound) {
-                    var team = 2
-                    for (let i = 0; i < curr_game.team1.length; i++) {
-                        if (curr_game.team1[i].userID == username) { 
-                            team = 1;
-                        }
-                    }
-                    curr_game.leaderboard.push({ userID: username, points: 1, team: team })
-                }
-
-                // var leaderboard = new Map()
-                // for (let i = 0; i < curr_game.photos.length; i++) {
-                //     let curr_player = curr_game.photos[i].user
-                //     if (!leaderboard.has(curr_player)) {
-                //         leaderboard.set(curr_player, 0)
-                //     }
-                //     leaderboard.set(curr_player, leaderboard.get(curr_player) + 1)
-                // }
-                // curr_game.leaderboard.length = 0
-                // for (let [key, value] of leaderboard) {
-                //     var team = 2
-                //     for (let i = 0; i < curr_game.team1.length; i++) {
-                //         if (curr_game.team1[i].userID == key) { team = 1 }
-                //     }
-                //     curr_game.leaderboard.push({ userID: key, points: value, team: team })
-                // }
 
                 curr_game.save()
                     .then(() => res.status(200).json(curr_game))
