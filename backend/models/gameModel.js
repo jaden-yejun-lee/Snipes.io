@@ -24,6 +24,9 @@ const gameSchema = new mongoose.Schema({
         },
         points: {
             type: Number
+        },
+        team: {
+            type: Number
         }
     }],
     players: [

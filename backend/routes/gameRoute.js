@@ -33,28 +33,13 @@ router.get('/:gameID', async (req, res) => {
             }
         }
 
-        // if (!userFound && game.state != "open"){
-        //     res.status(403).send("Access denied")
-        //     return
-        // }
-        var leaderboard = new Map()
-        for(let i = 0; i < game.photos.length; i++){
-            curr_player = game.photos[i].user
-            console.log(curr_player)
-            if (!leaderboard.has(curr_player)){
-                    leaderboard.set(curr_player, 0)
-            }
-            leaderboard.set(curr_player, leaderboard.get(curr_player) + 1)
+        if (!userFound && game.state != "open"){
+            res.status(403).send("Access denied")
+            return
         }
 
-        game.leaderboard.length = 0
-        for (let [key, value] of leaderboard) {
-            game.leaderboard.push({userID: key, points: value})
-        }            
         res.status(200).json(game)
-
         
-
 
 
         //------------------------------------------------------------------
@@ -79,6 +64,7 @@ router.get('/:gameID', async (req, res) => {
         res.status(500).json({message: err.message})
     }
 })
+
 
 // Create a new empty game
 router.post('/', async (req, res) => {
@@ -157,8 +143,16 @@ router.post('/:gameID/state', async (req, res) => {
             //create new history object for each user and add to their array
             for (let i=0; i < curr_game.players.length; i++){
                 player = curr_game.players[i].userID
-                playerPoints = Math.random()*100 //TODO -- count how many points for a player
-                //addUserHistory(player, gameid, points)  
+
+                let playerPoints = 0
+                for (let j=0; j < curr_game.leaderboard.length; j++){
+                    if (player == curr_game.leaderboard[i].userID){
+                        playerPoints = curr_game.leaderboard[i].points
+                        break
+                    }
+                }
+                playerPoints = playerPoints * 100
+                
                 try {
                     const user = await User.findOne({"name": player})
                     const newHist = new Hist({gameID: gameid, points: playerPoints})
@@ -408,10 +402,6 @@ router.post('/:gameID/photos', async(req, res) => {
             })
 
             curr_game.photos.push(newPhoto)
-            curr_game.save()
-            .then(() => res.status(200).json(curr_game))
-            .catch((err) => res.status(err).json({message: "Current Game Could Not Be Saved Due To Photo"}));
-
             // deletes file from local so that unnecessary space is not used in holding pictures in upload folder
             fs.unlink('./uploads/' + req.file.filename, (err) => {
                 if (err) {
@@ -421,7 +411,32 @@ router.post('/:gameID/photos', async(req, res) => {
             })
           
         }
-    }) 
+    })
+    
+        if (curr_game == null){
+            res.status(404).json({message: "No Game ID Found"})
+            return
+        }
+        var leaderboard = new Map()
+        for(let i = 0; i < curr_game.photos.length; i++){
+            curr_player = curr_game.photos[i].user
+            if (!leaderboard.has(curr_player)){
+                leaderboard.set(curr_player, 0)
+            }
+            leaderboard.set(curr_player, leaderboard.get(curr_player) + 1)   
+        }
+        curr_game.leaderboard.length = 0
+        for (let [key, value] of leaderboard) {
+            var is_team_one = 0
+            for(let i = 0; i < curr_game.team1.length; i++){
+                if (curr_game.team1[i].userID == key){is_team_one = 1}   
+            }
+            curr_game.leaderboard.push({userID: key, points: value, team: is_team_one})
+        }            
+        curr_game.save()
+            .then(() => res.status(200).json(curr_game))
+            .catch((err) => res.status(err).json({message: "Current Game Could Not Be Saved Due To Photo"}));
+
     } catch(err) {
         res.status(500).json({ message: err.message })
     }
