@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
+const historyModel = require('./historyModel')
 
-//The schema model for Sale
+//The schema model for users
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -19,11 +20,16 @@ const userSchema = new mongoose.Schema({
         require: false
         // default: null
     },
-    history: {
-        type: Array,
-        required: false,
-        default: []
-    }, 
+    currentPoints: {
+        type: Number,
+        require: false
+    },
+    history: [
+        {
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'userHistory'
+        }
+    ], 
     
 }, { collection: 'users',
 versionKey: false

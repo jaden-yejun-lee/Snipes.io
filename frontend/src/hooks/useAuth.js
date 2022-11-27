@@ -8,7 +8,7 @@ function useAuth() {
   const [token, setToken] = useState(getToken());
 
   const saveToken = userToken => {
-    sessionStorage.setItem('token', JSON.stringify(userToken));
+    sessionStorage.setItem('token', userToken);
     setToken(userToken.token);
   };
 
