@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -7,9 +7,15 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import { useNavigate } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
+
+
 
 function Home() {
     const navigate = useNavigate();
+    const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
+
     const handleCreate = async (event) => {
         event.preventDefault();
         console.log('clicked create game');
@@ -19,7 +25,10 @@ function Home() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            }).then(data => data.json());
+            }).then(data => {
+                statusCheck(data)
+                return data.json();
+            })
             const lobbyID = response?.gameID;
             navigate('/lobby/'+lobbyID);
         } catch(e) {
@@ -33,6 +42,14 @@ function Home() {
         const lobbyID = data.get('code')
         console.log('clicked join game with ' + lobbyID)
         navigate('/lobby/'+lobbyID);
+    }
+
+    const statusCheck = (data) => {
+        if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the Server. Please try again at another time");
+            throw new Error("Error with the Server")
+        }
     }
 
     return (
@@ -79,6 +96,7 @@ function Home() {
                 <Link href="login" variant="body2" sx={{ mt: 8 }}>
                     {"View Account"}
                 </Link>
+                {alert ? <Alert severity='error' onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
             </Box>
         </Container>
     );

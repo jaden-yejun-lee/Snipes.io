@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
@@ -10,10 +12,14 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom'
+import Alert from '@mui/material/Alert';
 
 function TeamSelect(props) {
     const { token } = useAuth();
-    const navigate = useNavigate();
+    const navigate = useNavigate()
+    
+    const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
 
     const handleJoin = async (ID, event) => {
         event.preventDefault();
@@ -25,7 +31,11 @@ function TeamSelect(props) {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-            }).then(data => data.json());
+            }).then(data => 
+                {
+                    statusCheck(data)
+                    return data.json()
+                })
         } catch (e) {
             console.log('Join team failed: ' + e);
         }
@@ -43,7 +53,11 @@ function TeamSelect(props) {
                 body: JSON.stringify({
                     state: "target_select",
                 })
-            }).then(data => data.json());
+            }).then(data => 
+                {
+                    statusCheck(data)
+                    return data.json();
+                })
         } catch (e) {
             console.log('Start target selection failed: ' + e);
         }
@@ -58,12 +72,32 @@ function TeamSelect(props) {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-            }).then(data => data.json());
+            }).then(data => {
+                statusCheck(data)
+                data.json()
+                
+            })
             navigate('/home');
         } catch (e) {
             console.log('Leave game failed: ' + e);
         }
     };
+
+    const statusCheck = (data) => {
+        if (data.status === 400) {
+            setAlert(true);
+            setAlertMessage("Error with the server. Please try again later");
+            throw new Error("Error with the server.")
+        } else if (data.status === 403) {
+            setAlert(true);
+            setAlertMessage("Current game is unavailable or finished already")
+            throw new Error("Current game is unavailable or finished already")
+        } else if (data.status === 404) {
+            setAlert(true);
+            setAlertMessage("Lobby game ID does not exist");
+            throw new Error("Lobby Game ID does not exist")
+        }
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -105,6 +139,7 @@ function TeamSelect(props) {
                         Leave Game
                     </Button>
                 </Box>
+                {alert ? <Alert severity='error' sx={{ mt: 1, textAlign: 'center' }} onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
             </Box>
         </Container >
     );
