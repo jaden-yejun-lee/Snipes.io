@@ -394,11 +394,6 @@ router.post('/:gameID/photos', async(req, res) => {
           
         }
     })
-    
-        if (curr_game == null){
-            res.status(404).json({message: "No Game ID Found"})
-            return
-        }
         var leaderboard = new Map()
         for(let i = 0; i < curr_game.photos.length; i++){
             curr_player = curr_game.photos[i].user
