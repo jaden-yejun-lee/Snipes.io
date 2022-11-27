@@ -37,28 +37,16 @@ router.get('/:gameID', async (req, res) => {
             res.status(403).send("Access denied")
             return
         }
-        //------------------------------------------------------------------
-        /*also return the leaderboard -- TODO
-        // create dictionary of user: points
-        // for each photo, check the user and add a point to the dictionary for that user
-        // iterate upon each team and sort by points then return
 
-        team1Leaderboard = []
-        team2Leaderboard = []
-        var hist = null;
+        res.status(200).json(game)
 
-        for (var a = 0; a <game.team1.length; a++){
-            curr_user = game.team1[a]
-            //somehow update the points
-        }
-        res.json(game, team1Leaderboard, team2Leaderboard) */
-
-        res.json(game)
+        
     } catch (err) {
         console.log("Something went wrong!")
         res.status(500).json({message: err.message})
     }
 })
+
 
 // Create a new empty game
 router.post('/', async (req, res) => {
@@ -73,6 +61,7 @@ router.post('/', async (req, res) => {
     const game = new Game({
         gameID: generated_id,
         state: "open",
+        leaderboard: [],
         players: [],
         objects: [],
         team1: [],
@@ -128,7 +117,6 @@ router.post('/:gameID/state', async (req, res) => {
             for(var i=0; i<toRemove; i++){
                 curr_game.objects.pop()
             }
-
         }
 
         //if we want to end the game, update all user's histories
@@ -137,8 +125,16 @@ router.post('/:gameID/state', async (req, res) => {
             //create new history object for each user and add to their array
             for (let i=0; i < curr_game.players.length; i++){
                 player = curr_game.players[i].userID
-                playerPoints = Math.random()*100 //TODO -- count how many points for a player
-                //addUserHistory(player, gameid, points)  
+
+                let playerPoints = 0
+                for (let j=0; j < curr_game.leaderboard.length; j++){
+                    if (player == curr_game.leaderboard[i].userID){
+                        playerPoints = curr_game.leaderboard[i].points
+                        break
+                    }
+                }
+                playerPoints = playerPoints * 100
+                
                 try {
                     const user = await User.findOne({"name": player})
                     const newHist = new Hist({gameID: gameid, points: playerPoints})
@@ -360,23 +356,23 @@ const upload = multer({
 // post a photo to db 
 router.post('/:gameID/photos', async(req, res) => {
     try {
-    var token = req.headers.authorization
     let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
-    console.log(username)
+
     const curr_game = await Game.findOne({"gameID": req.params.gameID})
 
     if (curr_game == null) {
-        res.status(504).json({message: "No Game ID Found"})
+        res.status(404).json({message: "No Game ID Found"})
         return
     }
-
-
     upload(req, res, (err) => {
         if(err) {
-            res.status(504).json({message: "Could Not Uplaod Photo"})
+            res.status(500).json({message: "Could Not Uplaod Photo"})
         }
         else {
-
+            if (!req.file) {
+                res.status(400).json({message: "No photo selected"})
+                return
+            }
             const newPhoto = new Photo({
                 object: req.body.object,
                 image: {
@@ -388,20 +384,36 @@ router.post('/:gameID/photos', async(req, res) => {
             })
 
             curr_game.photos.push(newPhoto)
-            curr_game.save()
-            .then(() => res.status(200).json(curr_game))
-            .catch((err) => res.status(err).json({message: "Current Game Could Not Be Saved Due To Photo"}));
-
             // deletes file from local so that unnecessary space is not used in holding pictures in upload folder
             fs.unlink('./uploads/' + req.file.filename, (err) => {
                 if (err) {
-                    res.status(504).json({message: "Could Not Delete Photo From Local Device"})
+                    res.status(500).json({message: "Could Not Delete Photo From Local Device"})
                     return
                 }
             })
           
         }
-    }) 
+    })
+        var leaderboard = new Map()
+        for(let i = 0; i < curr_game.photos.length; i++){
+            curr_player = curr_game.photos[i].user
+            if (!leaderboard.has(curr_player)){
+                leaderboard.set(curr_player, 0)
+            }
+            leaderboard.set(curr_player, leaderboard.get(curr_player) + 1)   
+        }
+        curr_game.leaderboard.length = 0
+        for (let [key, value] of leaderboard) {
+            var is_team_one = 0
+            for(let i = 0; i < curr_game.team1.length; i++){
+                if (curr_game.team1[i].userID == key){is_team_one = 1}   
+            }
+            curr_game.leaderboard.push({userID: key, points: value, team: is_team_one})
+        }            
+        curr_game.save()
+            .then(() => res.status(200).json(curr_game))
+            .catch((err) => res.status(err).json({message: "Current Game Could Not Be Saved Due To Photo"}));
+
     } catch(err) {
         res.status(500).json({ message: err.message })
     }
@@ -416,9 +428,6 @@ router.post('/:gameID/photos', async(req, res) => {
 //GET: Get a photo with id
 router.get('/:gameID/photos/:id', async (req, res) => {
     try {
-        var token = req.headers.authorization
-        let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
-
         const game = await Game.findOne({"gameID": req.params.gameID})
 
         if (game == null){
@@ -427,7 +436,7 @@ router.get('/:gameID/photos/:id', async (req, res) => {
         }
 
         for (let i = 0; i < game.photos.length; i++) {
-            if (game.photos[i]._id == req.params.id) {
+            if (game.photos[i]._id.toString() == req.params.id) {
                 res.status(200).json(game.photos[i])
             }
         }

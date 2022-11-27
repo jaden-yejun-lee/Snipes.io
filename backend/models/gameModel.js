@@ -18,7 +18,17 @@ const gameSchema = new mongoose.Schema({
     //     required: true
     // },
 
-
+    leaderboard: [{
+        userID: {
+            type: String
+        },
+        points: {
+            type: Number
+        },
+        team: {
+            type: Number
+        }
+    }],
     players: [
         {
             userID: String
