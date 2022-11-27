@@ -18,6 +18,7 @@ function Login() {
     const from = location.state?.from?.pathname || "/home";
     const { token, setToken } = useAuth();
     const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -39,10 +40,7 @@ function Login() {
                     password: password,
                 })
             }).then(data => {
-                if (data.status === 401) {
-                    setAlert(true);
-                    throw new Error("Incorrect Login Information")
-                }
+                statusCheck(data)
                 return data.json()
             }
             );
@@ -56,6 +54,19 @@ function Login() {
             console.log('Login failed: ' + e);
         }
     };
+
+    const statusCheck = (data) => {
+        if (data.status === 401) {
+            setAlert(true);
+            setAlertMessage("Incorrect Login Information");
+            throw new Error("Incorrect Login Information");
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the Server. Please try again at another time");
+            throw new Error("Error with the Server");
+        }
+    }
+
 
     return (
         <Container component="main" maxWidth="xs">
@@ -97,7 +108,7 @@ function Login() {
                     >
                         Log In
                     </Button>
-                    {alert ? <Alert severity='error' onClose={() => setAlert(false)}>{"Incorrect Login Information"}</Alert> : <></> }
+                    {alert ? <Alert severity='error' onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
                     <Grid container>
                         <Grid item xs>
                             <Link href="register" variant="body2">

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Container from "@mui/material/Container"
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from '@mui/material/Box';
@@ -9,12 +9,15 @@ import Grid from '@mui/material/Grid';
 import Link from "@mui/material/Link";
 import { useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import Alert from '@mui/material/Alert';
 
 function Register() {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/home";
     const { token, setToken } = useAuth();
+    const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -36,7 +39,12 @@ function Register() {
                     email: user,
                     password: password,
                 })
-            }).then(data => data.json());
+            }).then(data =>  {
+                statusCheck(data)
+                return data.json()
+            }
+            
+            );
             const token = response?.data?.token;
             setToken(token);
             navigate(from, { replace: true });
@@ -45,6 +53,19 @@ function Register() {
             console.log('Signup failed: ' + e);
         }
     };
+
+    const statusCheck = (data) => {
+        if (data.status === 401) {
+            setAlert(true);
+            setAlertMessage("Incorrect Login Information");
+            throw new Error("Incorrect Login Information");
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the Server. Please try again at another time");
+            throw new Error("Error with the Server");
+        }
+    }
+
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -85,6 +106,7 @@ function Register() {
                     >
                         Register
                     </Button>
+                    {alert ? <Alert severity='error' onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
                     <Grid container>
                         <Grid item xs>
                             <Link href="login" variant="body2">
