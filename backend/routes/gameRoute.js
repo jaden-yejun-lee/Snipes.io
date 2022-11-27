@@ -39,24 +39,6 @@ router.get('/:gameID', async (req, res) => {
         }
 
         res.status(200).json(game)
-        
-
-
-        //------------------------------------------------------------------
-        /*also return the leaderboard -- TODO
-        // create dictionary of user: points
-        // for each photo, check the user and add a point to the dictionary for that user
-        // iterate upon each team and sort by points then return
-
-        team1Leaderboard = []
-        team2Leaderboard = []
-        var hist = null;
-
-        for (var a = 0; a <game.team1.length; a++){
-            curr_user = game.team1[a]
-            //somehow update the points
-        }
-        res.json(game, team1Leaderboard, team2Leaderboard) */
 
         
     } catch (err) {
