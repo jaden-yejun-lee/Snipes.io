@@ -33,10 +33,30 @@ router.get('/:gameID', async (req, res) => {
             }
         }
 
-        if (!userFound && game.state != "open"){
-            res.status(403).send("Access denied")
-            return
+        // if (!userFound && game.state != "open"){
+        //     res.status(403).send("Access denied")
+        //     return
+        // }
+        var leaderboard = new Map()
+        for(let i = 0; i < game.photos.length; i++){
+            curr_player = game.photos[i].user
+            console.log(curr_player)
+            if (!leaderboard.has(curr_player)){
+                    leaderboard.set(curr_player, 0)
+            }
+            leaderboard.set(curr_player, leaderboard.get(curr_player) + 1)
         }
+
+        game.leaderboard.length = 0
+        for (let [key, value] of leaderboard) {
+            game.leaderboard.push({userID: key, points: value})
+        }            
+        res.status(200).json(game)
+
+        
+
+
+
         //------------------------------------------------------------------
         /*also return the leaderboard -- TODO
         // create dictionary of user: points
@@ -53,7 +73,7 @@ router.get('/:gameID', async (req, res) => {
         }
         res.json(game, team1Leaderboard, team2Leaderboard) */
 
-        res.json(game)
+        
     } catch (err) {
         console.log("Something went wrong!")
         res.status(500).json({message: err.message})
@@ -73,6 +93,7 @@ router.post('/', async (req, res) => {
     const game = new Game({
         gameID: generated_id,
         state: "open",
+        leaderboard: [],
         players: [],
         objects: [],
         team1: [],
@@ -128,7 +149,6 @@ router.post('/:gameID/state', async (req, res) => {
             for(var i=0; i<toRemove; i++){
                 curr_game.objects.pop()
             }
-
         }
 
         //if we want to end the game, update all user's histories
