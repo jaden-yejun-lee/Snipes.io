@@ -4,40 +4,33 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
-function Game(props) {
+function Leaderboard(props) {
     const { token } = useAuth();
     const navigate = useNavigate();
 
-    const goto = (page, event) => {
-        event.preventDefault();
-        navigate(page);
-    }
-
-    const handleSubmit = async (event) => {
+    const handleLeave = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/state', {
-                method: 'POST',
+            const response = await fetch('http://' + window.location.hostname + ':8080/gameModel/' + props.lobbyID + '/assignPlayer', {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-                body: JSON.stringify({
-                    state: "game_over",
-                })
             }).then(data => data.json());
+            navigate('/home');
         } catch (e) {
-            console.log('Start game failed: ' + e);
+            console.log('Delete player failed: ' + e);
         }
-    };
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -51,9 +44,19 @@ function Game(props) {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    Game ID: {props.lobbyID}
+                    Lobby Code: {props.lobbyID}
                 </Typography>
-                <Grid container sx={{ mt: 4, mb: 2 }}>
+                <Grid container sx={{ mt: 4 }}>
+                    <Grid item xs={12}>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography component="h6" variant="h6">
+                                Game Over!
+                            </Typography>
+                            <Typography component="h6" variant="h6">
+                                Final Leaderboard:
+                            </Typography>
+                        </Box>
+                    </Grid>
                     <Grid item xs={6}>
                         <Points points={props.leaderboard.filter((player) => player.team == '1')} team="1" />
                     </Grid>
@@ -61,30 +64,13 @@ function Game(props) {
                         <Points points={props.leaderboard.filter((player) => player.team == '2')} team="2" />
                     </Grid>
                 </Grid>
-                <TargetList targets={props.targets} />
-                <Box component="form" onSubmit={(event) => goto('killFeed', event)} sx={{ mt: 4 }}>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                    >
-                        Kill Feed
-                    </Button>
-                </Box>
-                <Box component="form" onSubmit={(event) => goto('upload', event)} sx={{ mt: 2 }}>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                    >
-                        Upload Snipe
-                    </Button>
-                </Box>
-                <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+                <Box component="form" onSubmit={handleLeave} sx={{ mt: 10 }}>
                     <Button
                         type="submit"
                         variant="contained"
                         color="error"
                     >
-                        End Game
+                        Leave Game
                     </Button>
                 </Box>
             </Box>
@@ -99,25 +85,11 @@ function Points(props) {
                 <ListItemText primary={'Team ' + props.team + ':'} />
             </ListItem>
             <Divider sx={{ ml: '5%', mr: '5%' }} />
-            <ListItem style={{ textAlign: 'center' }}>
-                <ListItemText primary={props.points.reduce((sum, next) => sum + next.points, 0) + ' points'} />
-            </ListItem>
-        </Box>
-    );
-}
-
-function TargetList(props) {
-    return (
-        <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-            <ListItem style={{ textAlign: 'center' }}>
-                <ListItemText primary={'Targets:'} />
-            </ListItem>
-            <Divider sx={{ ml: '30%', mr: '30%' }} />
             <List dense>
                 {
-                    props.targets.map((target, index) =>
+                    props.points.map((player, index) =>
                         <ListItem key={index} style={{ textAlign: 'center' }}>
-                            <ListItemText primary={target} />
+                            <ListItemText primary={player.user + ': ' + player.points + ' points'} />
                         </ListItem>)
                 }
             </List>
@@ -125,4 +97,4 @@ function TargetList(props) {
     );
 }
 
-export default Game;
+export default Leaderboard;
