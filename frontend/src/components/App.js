@@ -4,6 +4,7 @@ import Register from './Register';
 import Home from './Home';
 import Lobby from './Lobby';
 import RequireAuth from './RequireAuth';
+import Profile from './Profile';
 import Upload from './Upload';
 import KillFeed from './KillFeed';
 import './App.css';
@@ -23,6 +24,9 @@ function App() {
                         <Route path='upload' element={<Upload />} />
                         <Route path='killFeed' element={<KillFeed />} />
                     </Route>
+                </Route>
+                <Route element={<RequireAuth />}>
+                    <Route path='/profile' element={<Profile />} />
                 </Route>
             </Routes>
         </Router>

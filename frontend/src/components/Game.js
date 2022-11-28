@@ -80,10 +80,10 @@ function Game(props) {
                 </Typography>
                 <Grid container sx={{ mt: 4, mb: 2 }}>
                     <Grid item xs={6}>
-                        <Points points={props.points[0]} team="1" />
+                        <Points points={props.leaderboard.filter((player) => player.team == '1')} team="1" />
                     </Grid>
                     <Grid item xs={6}>
-                        <Points points={props.points[1]} team="2" />
+                        <Points points={props.leaderboard.filter((player) => player.team == '2')} team="2" />
                     </Grid>
                 </Grid>
                 <TargetList targets={props.targets} />
@@ -126,7 +126,7 @@ function Points(props) {
             </ListItem>
             <Divider sx={{ ml: '5%', mr: '5%' }} />
             <ListItem style={{ textAlign: 'center' }}>
-                <ListItemText primary={props.points + ' points'} />
+                <ListItemText primary={props.points.reduce((sum, next) => sum + next.points, 0) + ' points'} />
             </ListItem>
         </Box>
     );

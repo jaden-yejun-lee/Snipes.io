@@ -37,7 +37,7 @@ function KillFeed() {
             <CssBaseline />
             <Box
                 sx={{
-                    marginTop: 4,
+                    marginTop: 8,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',

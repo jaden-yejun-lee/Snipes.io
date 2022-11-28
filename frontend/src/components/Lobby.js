@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
 import { useParams, useOutlet, Outlet } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import Leaderboard from './Leaderboard';
 import TeamSelect from './TeamSelect';
 import TargetSelect from './TargetSelect';
 import Game from './Game';
@@ -30,10 +20,10 @@ function Lobby() {
     const [team1, setTeam1] = useState([]);
     const [team2, setTeam2] = useState([]);
     const [targets, setTargets] = useState([]);
-    const [points, setPoints] = useState([0, 0]);
     const [photos, setPhotos] = useState([]);
     const [ alert, setAlert ] = useState(false);
     const [ alertMessage, setAlertMessage ] = useState("");
+    const [leaderboard, setLeaderboard] = useState([]);
 
     console.log(lobbyID);
 
@@ -52,11 +42,11 @@ function Lobby() {
             // Need: lobby DNE error code, no permission error code, success code
             // Set gameState: teamSelect, targetSelect, inProgress
             setGameState(response?.state);
-            setTeam1(response?.team1.map((p) => p.userID));
-            setTeam2(response?.team2.map((p) => p.userID));
-            setTargets(response?.objects.map((o) => o.object).sort());
-            setPhotos(response?.photos.map((p) => {return {image: p.image, username: p.user, timestamp: parseInt(p.timestamp), target: p.object}}));
-            //setPoints(response?.points);
+            setTeam1(response?.team1.map((i) => i.userID));
+            setTeam2(response?.team2.map((i) => i.userID));
+            setTargets(response?.objects.map((i) => i.object).sort());
+            setPhotos(response?.photos.map((i) => {return {image: i.image, username: i.user, timestamp: parseInt(i.timestamp), target: i.object}}));
+            setLeaderboard(response?.leaderboard.map((i) => {return {user: i.userID, points: i.points*1000, team: i.team}}));
         }
         catch (e) {
             console.log('Fetch lobby failed: ' + e);
