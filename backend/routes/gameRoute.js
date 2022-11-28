@@ -119,8 +119,8 @@ router.post('/:gameID/state', async (req, res) => {
             }
         }
 
-        //if we want to end the game, update all user's histories
-        else if (req.body.state == "game_over") {
+        //if we want to end the game, update all user's histories then delete the game
+        else if (curr_game.state == 'in_progress' && req.body.state == "game_over") {
             gameid = curr_game.gameID
             //create new history object for each user and add to their array
             for (let i = 0; i < curr_game.players.length; i++) {
@@ -140,10 +140,6 @@ router.post('/:gameID/state', async (req, res) => {
                     const newHist = new Hist({ gameID: gameid, points: playerPoints })
                     await newHist.save();
 
-                    // if (user.history === null){
-                    //     console.log("null history")
-                    //     user.history = []
-                    // }
                     user.history.push(newHist)
                     await user.save();
                     //console.log(user.history)
@@ -252,7 +248,7 @@ router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
         // change to decryt jwt token
         // console.log(typeof req.headers)
         let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
-
+        
         const curr_game = await Game.findOne({ "gameID": req.params.gameID })
 
         if (curr_game == null) {
@@ -356,6 +352,20 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
                 break
             }
         }
+        
+        //if game state == game_over AND if players array length == 0, then delete the entire gameModel
+        if (curr_game.state == "game_over" && curr_game.players.length == 0) {
+            try {
+                const removedGame = await Game.deleteOne({ "gameID": req.params.gameID })
+                console.log("Successfully removed game " + req.params.gameID + " now that it is over.")
+                res.status(200).json(removedGame)
+                return
+        
+            } catch (err) {
+                res.status(500).json({ message: err.message })
+            }
+        }
+
         curr_game.save()
         res.status(200).json(curr_game)
 
