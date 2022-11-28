@@ -11,12 +11,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import useAuth from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
 
 function TeamSelect(props) {
     const { token } = useAuth();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const location = useLocation();
     
     const [ alert, setAlert ] = useState(false);
     const [ alertMessage, setAlertMessage ] = useState("");
@@ -53,11 +54,10 @@ function TeamSelect(props) {
                 body: JSON.stringify({
                     state: "target_select",
                 })
-            }).then(data => 
-                {
+            }).then(data => {
                     statusCheck(data)
                     return data.json();
-                })
+                });
         } catch (e) {
             console.log('Start target selection failed: ' + e);
         }
@@ -75,8 +75,7 @@ function TeamSelect(props) {
             }).then(data => {
                 statusCheck(data)
                 data.json()
-                
-            })
+            });
             navigate('/home');
         } catch (e) {
             console.log('Leave game failed: ' + e);
@@ -84,18 +83,20 @@ function TeamSelect(props) {
     };
 
     const statusCheck = (data) => {
-        if (data.status === 400) {
-            setAlert(true);
-            setAlertMessage("Error with the server. Please try again later");
-            throw new Error("Error with the server.")
+        if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
         } else if (data.status === 403) {
             setAlert(true);
-            setAlertMessage("Current game is unavailable or finished already")
-            throw new Error("Current game is unavailable or finished already")
+            setAlertMessage("You must be in the game to start game.")
+            throw new Error("Unauthorized access")
         } else if (data.status === 404) {
             setAlert(true);
             setAlertMessage("Lobby game ID does not exist");
-            throw new Error("Lobby Game ID does not exist")
+            throw new Error("Lobby game ID does not exist")
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the server. Please try again later");
+            throw new Error("Error with the server.")
         }
     }
 

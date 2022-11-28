@@ -17,10 +17,11 @@ import TargetSelect from './TargetSelect';
 import Game from './Game';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function Lobby() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { lobbyID } = useParams();
     const { token } = useAuth();
     const outlet = useOutlet();
@@ -72,9 +73,7 @@ function Lobby() {
 
     const statusCheck = (data) => {
         if (data.status === 401) {
-            setAlert(true);
-            setAlertMessage("Incorrect Login Information");
-            throw new Error("Incorrect Login Information");
+            navigate('/login', {state: {from: location, alert: true}})
         } else if (data.status === 404) {
             setAlert(true);
             setAlertMessage("Lobby game ID does not exist");
@@ -87,7 +86,6 @@ function Lobby() {
     }
 
     const handleReturn = async (event) => {
-        console.log("going back to main")
         navigate('/home')
     }
 
@@ -102,7 +100,8 @@ function Lobby() {
     // Frontend will display the proper screen
 
     return (
-            gameState === 'open' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
+            outlet === null ?
+            (gameState === 'open' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
             gameState === 'target_select' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : 
             gameState === 'in_progress' ? <Game lobbyID={lobbyID} targets={targets} points={points}></Game> : 
             alert ? 
@@ -117,7 +116,8 @@ function Lobby() {
                         Return back to Home Screen
                     </Button>
                 </Box>
-            </div> : <></>
+            </div> : <></>) :  
+            <Outlet context={[lobbyID, photos, targets]} />
     );
 }
 

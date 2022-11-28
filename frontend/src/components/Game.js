@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -9,12 +9,16 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import Alert from '@mui/material/Alert';
 
 function Game(props) {
     const { token } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
 
     const goto = (page, event) => {
         event.preventDefault();
@@ -33,11 +37,32 @@ function Game(props) {
                 body: JSON.stringify({
                     state: "game_over",
                 })
-            }).then(data => data.json());
+            }).then(data => {
+                statusCheck(data);
+                data.json();
+            });
         } catch (e) {
             console.log('Start game failed: ' + e);
         }
     };
+
+    const statusCheck = (data) => {
+        if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
+        } else if (data.status === 403) {
+            setAlert(true);
+            setAlertMessage("You are not in game. You cannot access this.");
+            throw new Error("Unauthorized access or action");
+        } else if (data.status === 404) {
+            setAlert(true);
+            setAlertMessage("Lobby game ID does not exist.");
+            throw new Error("Lobby Game ID does not exist")
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the server. Please try again later.");
+            throw new Error("Error with the server.")
+        }
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -87,6 +112,7 @@ function Game(props) {
                         End Game
                     </Button>
                 </Box>
+                {alert ? <Alert severity='error' sx={{ mt: 1, textAlign: 'center' }} onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
             </Box>
         </Container >
     );

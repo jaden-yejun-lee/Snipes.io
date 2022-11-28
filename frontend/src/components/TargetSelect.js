@@ -14,8 +14,11 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function TargetSelect(props) {
+    const navigate = useNavigate();
+    const location = useLocation();
     const { token } = useAuth();
     const [ alert, setAlert ] = useState(false);
     const [ alertMessage, setAlertMessage ] = useState("");
@@ -36,12 +39,9 @@ function TargetSelect(props) {
                     object: target,
                 })
             }).then(data => {
-
                 objectStatusCheck(data);
                 data.json();
-            })
-                
-                
+            });
         } catch (e) {
             console.log('Add target failed: ' + e);
         }
@@ -88,10 +88,11 @@ function TargetSelect(props) {
     const objectStatusCheck = (data) => {
         if (data.status === 400) {
             setAlert(true);
-            setAlertMessage("Error with adding/deleting target object. Please try again. ");
-            throw new Error("Error with adding/deleting target object");
-        }
-        if (data.status === 404) {
+            setAlertMessage("Object has already been added");
+            throw new Error("Object has already been added");
+        } else if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
+        } else if (data.status === 404) {
             setAlert(true);
             setAlertMessage("Lobby game ID does not exist");
             throw new Error("Lobby Game ID does not exist")
@@ -105,12 +106,14 @@ function TargetSelect(props) {
     const gameStatusCheck = (data) => {
         if (data.status === 400) {
             setAlert(true);
-            setAlertMessage("There is no objects. Game cannot be started");
-            throw new Error("There is no objects. Game cannot be started");
+            setAlertMessage("There are no objects. Game cannot be started.");
+            throw new Error("There are no objects. Game cannot be started");
+        } else if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
         } else if (data.status === 403) {
             setAlert(true);
-            setAlertMessage("Unauthorized access or action");
-            throw new Error("Unauthorized access or action");
+            setAlertMessage("You are not in this game. You cannot access this."); //should default to go back to home page?
+            throw new Error("Unauthorized access");
         } else if (data.status === 404) {
             setAlert(true);
             setAlertMessage("Lobby game ID does not exist");
