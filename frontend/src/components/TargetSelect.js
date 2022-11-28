@@ -13,9 +13,15 @@ import useAuth from '../hooks/useAuth';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function TargetSelect(props) {
+    const navigate = useNavigate();
+    const location = useLocation();
     const { token } = useAuth();
+    const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
 
     const handleAddTarget = async (event) => {
         event.preventDefault();
@@ -32,7 +38,10 @@ function TargetSelect(props) {
                 body: JSON.stringify({
                     object: target,
                 })
-            }).then(data => data.json());
+            }).then(data => {
+                objectStatusCheck(data);
+                data.json();
+            });
         } catch (e) {
             console.log('Add target failed: ' + e);
         }
@@ -48,7 +57,9 @@ function TargetSelect(props) {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
-            }).then(data => data.json());
+            }).then(data => {
+                objectStatusCheck(data)
+                data.json()});
         } catch (e) {
             console.log('Delete target failed: ' + e);
         }
@@ -66,11 +77,53 @@ function TargetSelect(props) {
                 body: JSON.stringify({
                     state: "in_progress",
                 })
-            }).then(data => data.json());
+            }).then(data => {
+                gameStatusCheck(data);
+                data.json()});
         } catch (e) {
             console.log('Start game failed: ' + e);
         }
     };
+
+    const objectStatusCheck = (data) => {
+        if (data.status === 400) {
+            setAlert(true);
+            setAlertMessage("Object has already been added");
+            throw new Error("Object has already been added");
+        } else if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
+        } else if (data.status === 404) {
+            setAlert(true);
+            setAlertMessage("Lobby game ID does not exist");
+            throw new Error("Lobby Game ID does not exist")
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the server. Please try again later");
+            throw new Error("Error with the server.")
+        }
+    }
+
+    const gameStatusCheck = (data) => {
+        if (data.status === 400) {
+            setAlert(true);
+            setAlertMessage("There are no objects. Game cannot be started.");
+            throw new Error("There are no objects. Game cannot be started");
+        } else if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
+        } else if (data.status === 403) {
+            setAlert(true);
+            setAlertMessage("You are not in this game. You cannot access this."); //should default to go back to home page?
+            throw new Error("Unauthorized access");
+        } else if (data.status === 404) {
+            setAlert(true);
+            setAlertMessage("Lobby game ID does not exist");
+            throw new Error("Lobby Game ID does not exist")
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the server. Please try again later");
+            throw new Error("Error with the server.")
+        }
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -96,6 +149,7 @@ function TargetSelect(props) {
                         Start Game!
                     </Button>
                 </Box>
+                {alert ? <Alert severity='error' sx={{ mt: 1, textAlign: 'center' }} onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
             </Box>
         </Container >
     );

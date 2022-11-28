@@ -12,17 +12,18 @@ import useAuth from '../hooks/useAuth';
 function Profile() {
     const { token } = useAuth();
     const [user, setUser] = useState('test');
-    const [history, setHistory] = useState([{ ID: 'abcde', score: 12345 }]);
+    const [history, setHistory] = useState([]);
 
     const getProfile = async () => {
         try {
-            const response = await fetch('http://' + window.location.hostname + ':8080/users/profile', {
+            const response = await fetch('http://' + window.location.hostname + ':8080/userModel/profile', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
             }).then(data => data.json());
+            console.log(response)
             setUser(response?.user);
             setHistory(response?.history);
         } catch (e) {

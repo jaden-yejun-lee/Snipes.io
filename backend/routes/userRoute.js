@@ -14,6 +14,7 @@ router.post("/signup", async (req, res, next) => {
         name: name,
         email: email,
         password: password,
+		history: [],
     })
 	try {
         const userExist = await User.exists({email: email});
@@ -83,13 +84,15 @@ router.post("/login", async (req, res, next) => {
 //retrieve all history of one player's profile
 router.get('/profile', async (req, res) => {    
 	try {
-		let user = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+		let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+		const user = await User.findOne({"email": username})
         var allHistories = [];
         for (var i = 0; i < user.history.length; i++){
-            const hist = await Hist.findById(user.history[i])
-            allHistories.push([hist.gameID, hist.points])
+            //for each history document
+            const hist = await Hist.findById(user.history[i].toString())
+            allHistories.push({ID: hist.gameID, score: hist.points})
         }
-        res.json(allHistories)
+        res.json({user: username, history: allHistories})
     } catch (err) {
         res.status(500).json({message: err.message})
     }

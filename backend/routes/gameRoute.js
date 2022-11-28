@@ -133,7 +133,7 @@ router.post('/:gameID/state', async (req, res) => {
                         break
                     }
                 }
-                playerPoints = playerPoints * 100
+                playerPoints = playerPoints * 1000
 
                 try {
                     const user = await User.findOne({ "name": player })
@@ -154,7 +154,6 @@ router.post('/:gameID/state', async (req, res) => {
 
         curr_game.save()
         res.status(200).json(curr_game)
-
     } catch (err) {
         if (err.message == "jwt expired"){
             res.status(401).json({message: err.message})
