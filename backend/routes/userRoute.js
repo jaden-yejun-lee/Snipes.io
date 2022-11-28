@@ -92,9 +92,7 @@ router.get('/profile', async (req, res) => {
             const hist = await Hist.findById(user.history[i].toString())
             allHistories.push({ID: hist.gameID, score: hist.points})
         }
-        console.log(allHistories)
         res.json({user: username, history: allHistories})
-        console.log("Successfully return all history of given user.")
     } catch (err) {
         res.status(500).json({message: err.message})
     }
