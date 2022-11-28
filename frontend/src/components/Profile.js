@@ -16,13 +16,14 @@ function Profile() {
 
     const getProfile = async () => {
         try {
-            const response = await fetch('http://' + window.location.hostname + ':8080/users/profile', {
+            const response = await fetch('http://' + window.location.hostname + ':8080/userModel/profile', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token,
                 },
             }).then(data => data.json());
+            console.log(response)
             setUser(response?.user);
             setHistory(response?.history);
         } catch (e) {

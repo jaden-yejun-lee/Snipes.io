@@ -133,20 +133,15 @@ router.post('/:gameID/state', async (req, res) => {
                         break
                     }
                 }
-                playerPoints = playerPoints * 100
+                playerPoints = playerPoints * 1000
 
                 try {
                     const user = await User.findOne({ "name": player })
                     const newHist = new Hist({ gameID: gameid, points: playerPoints })
                     await newHist.save();
 
-                    // if (user.history === null){
-                    //     console.log("null history")
-                    //     user.history = []
-                    // }
                     user.history.push(newHist)
                     await user.save();
-                    //console.log(user.history)
                     console.log("Successfully added new history to a given user.")
                 } catch (err) {
                     console.log("Unable to add new history.")
@@ -161,7 +156,6 @@ router.post('/:gameID/state', async (req, res) => {
 
         curr_game.save()
         res.status(200).json(curr_game)
-
     } catch (err) {
         if (err.message == "jwt expired"){
             res.status(401).json({message: err.message})

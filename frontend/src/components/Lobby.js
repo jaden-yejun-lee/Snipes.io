@@ -6,6 +6,8 @@ import TeamSelect from './TeamSelect';
 import TargetSelect from './TargetSelect';
 import Game from './Game';
 import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -64,10 +66,14 @@ function Lobby() {
     const statusCheck = (data) => {
         if (data.status === 401) {
             navigate('/login', {state: {from: location, alert: true}})
+        } else if (data.status === 403) {
+            setAlert(true);
+            setAlertMessage("Game has already started. Cannot access this game.");
+            throw new Error("Game has already started. Cannot access this game.");
         } else if (data.status === 404) {
             setAlert(true);
             setAlertMessage("Lobby game ID does not exist");
-            throw new Error("Lobby Game ID does not exist")
+            throw new Error("Lobby Game ID does not exist");
         } else if (data.status === 500) {
             setAlert(true);
             setAlertMessage("Error with the Server. Please try again at another time");
@@ -93,7 +99,8 @@ function Lobby() {
             outlet === null ?
             (gameState === 'open' ? <TeamSelect lobbyID={lobbyID} team1={team1} team2={team2}></TeamSelect> :
             gameState === 'target_select' ? <TargetSelect lobbyID={lobbyID} targets={targets}></TargetSelect> : 
-            gameState === 'in_progress' ? <Game lobbyID={lobbyID} targets={targets} points={points}></Game> : 
+            gameState === 'in_progress' ? <Game lobbyID={lobbyID} targets={targets} leaderboard={leaderboard}></Game> : 
+            gameState === 'game_over' ? <Leaderboard lobbyID={lobbyID} leaderboard={leaderboard}></Leaderboard> : 
             alert ? 
             <div>
                 <Alert severity='error' onClose={() => setAlert(false)}>{alertMessage}</Alert>

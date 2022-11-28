@@ -14,6 +14,7 @@ router.post("/signup", async (req, res, next) => {
         name: name,
         email: email,
         password: password,
+		history: [],
     })
 	try {
         const userExist = await User.exists({email: email});
@@ -122,15 +123,16 @@ router.get('/profile', async (req, res) => {
 	//const user = await User.findOne({"name": username})
     
 	try {
-		let user = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+		let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
+		const user = await User.findOne({"email": username})
         var allHistories = [];
         for (var i = 0; i < user.history.length; i++){
             //for each history document
-            const hist = await Hist.findById(user.history[i])
-            allHistories.push([hist.gameID, hist.points])
+            const hist = await Hist.findById(user.history[i].toString())
+            allHistories.push({ID: hist.gameID, score: hist.points})
         }
         console.log(allHistories)
-        res.json(allHistories)
+        res.json({user: username, history: allHistories})
         console.log("Successfully return all history of given user.")
     } catch (err) {
         console.log("Unable to display history.")
