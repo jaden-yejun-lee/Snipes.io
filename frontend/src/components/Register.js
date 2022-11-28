@@ -42,9 +42,7 @@ function Register() {
             }).then(data =>  {
                 statusCheck(data)
                 return data.json()
-            }
-            
-            );
+            });
             const token = response?.data?.token;
             setToken(token);
             navigate(from, { replace: true });

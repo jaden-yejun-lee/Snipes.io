@@ -17,8 +17,8 @@ function Login() {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/home";
     const { token, setToken } = useAuth();
-    const [ alert, setAlert ] = useState(false);
-    const [ alertMessage, setAlertMessage ] = useState("");
+    const [ alert, setAlert ] = useState(location.state?.alert || false);
+    const [ alertMessage, setAlertMessage ] = useState(location.state?.alert ? "Login token has expired. Please log in again." : "");
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -42,8 +42,7 @@ function Login() {
             }).then(data => {
                 statusCheck(data)
                 return data.json()
-            }
-            );
+            });
             console.log(response);
             
             const token = response?.data?.token;
