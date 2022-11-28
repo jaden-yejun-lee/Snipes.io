@@ -12,7 +12,7 @@ import useAuth from '../hooks/useAuth';
 function Profile() {
     const { token } = useAuth();
     const [user, setUser] = useState('test');
-    const [history, setHistory] = useState([{ ID: 'abcde', score: 12345 }]);
+    const [history, setHistory] = useState([]);
 
     const getProfile = async () => {
         try {
