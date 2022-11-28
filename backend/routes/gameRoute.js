@@ -441,13 +441,9 @@ router.post('/:gameID/photos', async(req, res) => {
             res.status(500).json({message: err.message})
         }
     }
-
 })
 
-
-
 // NEED TO WORK ON GET ALL
-
 
 //GET: Get a photo with id
 router.get('/:gameID/photos/:id', async (req, res) => {
