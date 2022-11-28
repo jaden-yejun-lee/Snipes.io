@@ -8,8 +8,11 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import Typography from '@mui/material/Typography';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function KillFeed() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [lobbyID, photos] = useOutletContext();
     const [images, setImages] = useState([]);
 

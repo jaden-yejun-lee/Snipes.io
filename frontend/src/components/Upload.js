@@ -12,16 +12,24 @@ import Typography from '@mui/material/Typography';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import useAuth from '../hooks/useAuth';
 import { Stack } from "@mui/system";
+import { useNavigate, useLocation } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
 
 
 //https://www.geeksforgeeks.org/how-to-upload-image-and-preview-it-using-reactjs/
 //URL.createObjectURL: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
 function Upload() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const { token } = useAuth();
     const [lobbyID, , targets] = useOutletContext();
     const [selectedPhoto, setSelectedPhoto] = useState();
     const [isSelected, setIsSelected] = useState(false);
     const [selectedTarget, setSelectedTarget] = useState('');
+    const [ alert, setAlert ] = useState(false);
+    const [ alertMessage, setAlertMessage ] = useState("");
+    const [ success, setSuccess ] = useState(false);
+
 
     const fileSelectedHandler = (event) => {
         setSelectedPhoto(event.target.files[0]);
@@ -44,12 +52,40 @@ function Upload() {
                     'Authorization': 'Bearer ' + token,
                 },
                 body: formData,
-            }).then(data => data.json());
+            }).then(data => {
+                statusCheck(data)
+                data.json()
+            });
             setSelectedPhoto();
             setIsSelected(false);
             setSelectedTarget('')
         } catch (e) {
             console.log('Upload photo failed: ' + e)
+        }
+    }
+
+    const statusCheck = (data) => {
+        if (data.status === 200) {
+            setSuccess(true);
+            setAlert(false);
+            setAlertMessage("No photo selected. Please try again.");
+            throw new Error("No photo selected");
+        } else if (data.status === 400) {
+            setSuccess(false);
+            setAlert(true);
+            setAlertMessage("No photo selected. Please try again.");
+            throw new Error("No photo selected");
+        } else if (data.status === 401) {
+            navigate('/login', {state: {from: location, alert: true}})
+        } else if (data.status === 404) {
+            setSuccess(false);
+            setAlert(true);
+            setAlertMessage("Lobby game ID does not exist.");
+            throw new Error("Lobby Game ID does not exist")
+        } else if (data.status === 500) {
+            setAlert(true);
+            setAlertMessage("Error with the Server. Please try again at another time.");
+            throw new Error("Error with the Server");
         }
     }
 
@@ -121,6 +157,8 @@ function Upload() {
                         >
                             Upload
                         </Button>
+                        {alert ? <Alert severity='error' onClose={() => setAlert(false)}>{alertMessage}</Alert> : <></> }
+                        {success ? <Alert severity='success' onClose={() => setSuccess(false)}>Photo successfuly uploaded</Alert> : <></> }
                     </Stack>
                 </Box>
             </Box>
