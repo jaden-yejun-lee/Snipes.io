@@ -42,8 +42,12 @@ router.get('/:gameID', async (req, res) => {
 
         
     } catch (err) {
-        console.log("Something went wrong!")
-        res.status(500).json({message: err.message})
+        if (err.message == "jwt expired"){
+            res.status(401).json({message: err.message})
+        }
+        else{
+            res.status(500).json({message: err.message})
+        }
     }
 })
 
@@ -73,7 +77,7 @@ router.post('/', async (req, res) => {
         const newGame = await game.save()
         res.status(201).json(newGame)
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -163,7 +167,12 @@ router.post('/:gameID/state', async (req, res) => {
         res.status(200).json(curr_game)
 
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        if (err.message == "jwt expired"){
+            res.status(401).json({message: err.message})
+        }
+        else{
+            res.status(500).json({message: err.message})
+        }
     }
 })
 
@@ -226,7 +235,7 @@ router.delete('/:gameID/target/:target', async (req, res) => {
         }
     } catch (err) {
         console.log("Something went wrong!")
-        res.status(400).json({message: err.message})
+        res.status(500).json({message: err.message})
     }
 })
 
@@ -237,7 +246,7 @@ router.delete('/:gameID', async (req, res) => {
         res.status(200).json(removedGame)
 
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        res.status(500).json({ message: err.message })
     }
 })
 
@@ -298,7 +307,12 @@ router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
         res.status(200).json(curr_game)
 
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        if (err.message == "jwt expired"){
+            res.status(401).json({message: err.message})
+        }
+        else{
+            res.status(500).json({message: err.message})
+        }
     }
 })
 
@@ -336,7 +350,12 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
         res.status(200).json(curr_game)
 
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        if (err.message == "jwt expired"){
+            res.status(401).json({message: err.message})
+        }
+        else{
+            res.status(500).json({message: err.message})
+        }
     }
 })
 
@@ -415,7 +434,12 @@ router.post('/:gameID/photos', async(req, res) => {
             .catch((err) => res.status(err).json({message: "Current Game Could Not Be Saved Due To Photo"}));
 
     } catch(err) {
-        res.status(500).json({ message: err.message })
+        if (err.message == "jwt expired"){
+            res.status(401).json({message: err.message})
+        }
+        else{
+            res.status(500).json({message: err.message})
+        }
     }
 
 })
