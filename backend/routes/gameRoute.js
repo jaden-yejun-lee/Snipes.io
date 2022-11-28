@@ -142,10 +142,7 @@ router.post('/:gameID/state', async (req, res) => {
 
                     user.history.push(newHist)
                     await user.save();
-                    //console.log(user.history)
-                    console.log("Successfully added new history to a given user.")
                 } catch (err) {
-                    console.log("Unable to add new history.")
                     res.status(500).json({ message: err.message })
                     return
                 }
@@ -186,16 +183,13 @@ router.post('/:gameID/target', async (req, res) => {
             }
         }
 
-        //We want to add the object to a random index.
         //1. Create any random number between min (included) and max (not included): Math.random() * (max - min) + min;
         randomSeededIndex = Math.random() * (curr_game.objects.length - 0) + 0;
         //2. insert at index: <array-name>.splice(<position-to-insert-items>,0,<item-1>,<item-2>,..,<item-n>)
         curr_game.objects.splice(randomSeededIndex, 0, { "object": object })
         curr_game.save()
-        //console.log(curr_game.objects)
         res.status(201).json(curr_game)
     } catch (err) {
-        console.log("Something went wrong!")
         res.status(500).json({ message: err.message })
     }
 })
@@ -226,19 +220,7 @@ router.delete('/:gameID/target/:target', async (req, res) => {
             res.status(200).json(curr_game)
         }
     } catch (err) {
-        console.log("Something went wrong!")
         res.status(500).json({message: err.message})
-    }
-})
-
-// delete a game
-router.delete('/:gameID', async (req, res) => {
-    try {
-        const removedGame = await Game.deleteOne({ "gameID": req.params.gameID })
-        res.status(200).json(removedGame)
-
-    } catch (err) {
-        res.status(500).json({ message: err.message })
     }
 })
 
@@ -246,7 +228,6 @@ router.delete('/:gameID', async (req, res) => {
 router.post('/:gameID/assignPlayer/:team_number', async (req, res) => {
     try {
         // change to decryt jwt token
-        // console.log(typeof req.headers)
         let username = jwt.verify(req.headers['authorization'].split(' ')[1], "boopoop").email
         
         const curr_game = await Game.findOne({ "gameID": req.params.gameID })
@@ -357,7 +338,6 @@ router.delete('/:gameID/assignPlayer', async (req, res) => {
         if (curr_game.state == "game_over" && curr_game.players.length == 0) {
             try {
                 const removedGame = await Game.deleteOne({ "gameID": req.params.gameID })
-                console.log("Successfully removed game " + req.params.gameID + " now that it is over.")
                 res.status(200).json(removedGame)
                 return
         
@@ -456,26 +436,4 @@ router.post('/:gameID/photos', async (req, res) => {
     }
 })
 
-// NEED TO WORK ON GET ALL
-
-//GET: Get a photo with id
-router.get('/:gameID/photos/:id', async (req, res) => {
-    try {
-        const game = await Game.findOne({ "gameID": req.params.gameID })
-
-        if (game == null) {
-            res.status(504).json({ message: "No Game ID Found" })
-            return
-        }
-
-        for (let i = 0; i < game.photos.length; i++) {
-            if (game.photos[i]._id.toString() == req.params.id) {
-                res.status(200).json(game.photos[i])
-            }
-        }
-    } catch (err) {
-        console.log("Something went wrong!")
-        res.status(500).json({ message: err.message })
-    }
-})
 module.exports = router

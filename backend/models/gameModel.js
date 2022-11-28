@@ -9,15 +9,6 @@ const gameSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // team1_pts: {
-    //     type: Number,
-    //     required: true
-    // },
-    // team1_pts: {
-    //     type: Number,
-    //     required: true
-    // },
-
     leaderboard: [{
         userID: {
             type: String
@@ -49,7 +40,6 @@ const gameSchema = new mongoose.Schema({
             userID: String
         }
     ], 
-    // photo array
     photos: [
         {
             object: {

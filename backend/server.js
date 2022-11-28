@@ -16,7 +16,6 @@ db.on('error', (error) => console.error(error)) //If there is an error log the e
 db.once('open', () => (console.log('Connected to Database'))) //Once you can open/connect to Database, log that there was a connection
 
 //Let the server accept JSON
-// app.use(express.json())
 app.use(bodyParser.json())
 
 const gameRouter = require("./routes/gameRoute")
@@ -24,8 +23,5 @@ app.use('/gameModel', gameRouter)
 
 const userRouter = require("./routes/userRoute");
 app.use('/userModel', userRouter)
-
-const photoRouter = require("./routes/photo")
-app.use('/upload', photoRouter)
 
 app.listen(8080, () => console.log('Server Started'))

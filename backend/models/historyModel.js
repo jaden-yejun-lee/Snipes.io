@@ -1,11 +1,9 @@
 const mongoose = require('mongoose')
 
-//schema model for history
 const historySchema = new mongoose.Schema({
     gameID: {
         type: String,
         required: false,
-        //default: "", ---> "" is a falsy value and thus is invalid 
     },
     points: {
         type: Number,
