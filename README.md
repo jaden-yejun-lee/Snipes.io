@@ -45,6 +45,8 @@ This project was created using the MERN tech stack (MongoDB, Express.js, React, 
 ## Acknowledgments
 The UI was made possible by [Material UI](https://mui.com/).
 
+The database is hosted AWS via [MongoDB Atlas](https://www.mongodb.com/atlas/database).
+
 ## Team members
 - [Edwin He](https://github.com/Edwinhe03)
 - [Gavin Wong](https://github.com/GavinWon)
